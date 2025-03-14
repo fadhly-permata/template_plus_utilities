@@ -4,6 +4,22 @@ namespace IDC.Utilities.Data;
 
 public sealed partial class PostgreHelper
 {
+    /// <summary>
+    /// Initializes PostgreHelper with connection string.
+    /// </summary>
+    /// <param name="connectionString">PostgreSQL connection string.</param>
+    /// <param name="logging">Optional logging instance.</param>
+    /// <remarks>
+    /// Creates and opens database connection.
+    /// Optionally configures logging.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var db = new PostgreHelper("Host=localhost;Database=mydb;Username=user;Password=pass");
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentException">Thrown when connection string is null or empty.</exception>
+    /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
     public PostgreHelper(string connectionString, SystemLogging? logging = null)
     {
         try
@@ -21,6 +37,26 @@ public sealed partial class PostgreHelper
         }
     }
 
+    /// <summary>
+    /// Initializes PostgreHelper with common connection string.
+    /// </summary>
+    /// <param name="connectionString">Common connection string instance.</param>
+    /// <param name="logging">Optional logging instance.</param>
+    /// <remarks>
+    /// Creates and opens database connection using common format.
+    /// Optionally configures logging.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var connStr = new CommonConnectionString {
+    ///     Host = "localhost",
+    ///     Database = "mydb"
+    /// };
+    /// var db = new PostgreHelper(connStr);
+    /// </code>
+    /// </example>
+    /// <exception cref="ArgumentNullException">Thrown when connection string is null.</exception>
+    /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
     public PostgreHelper(CommonConnectionString connectionString, SystemLogging? logging = null)
     {
         try
