@@ -480,7 +480,7 @@ public class CommonConnectionString
     /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-size"/>
     /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-shared"/>
     /// </remarks>
-    public string ToSQLiteInMemory(bool cached = true) =>
+    public static string ToSQLiteInMemory(bool cached = true) =>
         string.Join<string>(
             separator: ";",
             values:
