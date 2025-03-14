@@ -1,0 +1,60 @@
+{
+    "AppName": "IDC.Template",
+    "Language": "en",
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+            "Microsoft.AspNetCore": "Warning"
+        },
+        "AttachToDIObjects": true,
+        "IncludeStackTrace": true,
+        "OSLogging": true,
+        "FileLogging": true,
+        "AutoCleanupOldLogs": true,
+        "MaxOldlogAge": 30,
+        "BaseDirectory": "",
+        "LogDirectory": "/wwwroot/logs/"
+    },
+    "DependencyInjection": {
+        "Caching": true,
+        "SQLite": true
+    },
+    "DefaultConStrings": {
+        "SQLite": "memory"
+    },
+    "Cors": {
+        "Enabled": true,
+        "AllowedHosts": [
+            "http://*",
+            "https://*",
+            "http://localhost:*"
+        ],
+        "AllowedHeaders": [],
+        "AllowedMethods": [
+            "GET",
+            "POST"
+        ]
+    },
+    "SwaggerConfig": {
+        "UI": {
+            "Enable": true,
+            "SortEndpoints": true,
+            "Theme": "/themes/theme-monokai-dark.css"
+        },
+        "OpenApiInfo": {
+            "Title": "API - IDC Template",
+            "Version": "v2",
+            "Description": "API documentation for IDC Template project",
+            "TermsOfService": "/openapi/terms.html",
+            "Contact": {
+                "Name": "API Support",
+                "Email": "fadhly.permata@idxpartners.com",
+                "Url": "https://idxpartners.com/contact-us/"
+            },
+            "License": {
+                "Name": "Proprietary",
+                "Url": "/openapi/license.html"
+            }
+        }
+    }
+}

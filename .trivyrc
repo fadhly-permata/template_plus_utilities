@@ -1,0 +1,23 @@
+severity: ["HIGH", "CRITICAL", "MEDIUM", "LOW"]
+format: table
+timeout: 5m
+exit-code: 1
+scan:
+  skip-dirs:
+    - "tests"
+    - "test"
+    - "bin"
+    - "obj"
+    - "node_modules"
+    - ".git"
+    - ".vs"
+    - ".vscode"
+pkg:
+  types:
+    - "library"
+    - "os"
+secret:
+  disable-allow-rules: false
+config:
+  ignore-policy: true
+  checks-bundle-repository: "https://github.com/aquasecurity/trivy-checks"
