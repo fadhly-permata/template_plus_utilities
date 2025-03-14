@@ -8,6 +8,7 @@ public sealed partial class SQLiteHelper
     /// Initializes a new instance using a connection string.
     /// </summary>
     /// <param name="connectionString">SQLite connection string.</param>
+    /// <param name="messages">Optional custom messages.</param>
     /// <param name="logging">Optional logging instance.</param>
     /// <exception cref="ArgumentException">Thrown when connectionString is null or empty.</exception>
     /// <remarks>
@@ -19,12 +20,17 @@ public sealed partial class SQLiteHelper
     /// </code>
     /// </example>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings">SQLite Connection Strings</seealso>
-    public SQLiteHelper(string connectionString, SystemLogging? logging = null)
+    public SQLiteHelper(
+        string connectionString,
+        Messages? messages = null,
+        SystemLogging? logging = null
+    )
     {
         try
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
+            _messages = messages ?? new();
             _logging = logging;
             _connection = new(connectionString: connectionString);
             _connection.Open();
@@ -40,6 +46,7 @@ public sealed partial class SQLiteHelper
     /// Initializes a new instance using a common connection string.
     /// </summary>
     /// <param name="connectionString">Common connection string instance.</param>
+    /// <param name="messages">Optional custom messages.</param>
     /// <param name="logging">Optional logging instance.</param>
     /// <exception cref="ArgumentNullException">Thrown when connectionString is null.</exception>
     /// <remarks>
@@ -52,12 +59,17 @@ public sealed partial class SQLiteHelper
     /// </code>
     /// </example>
     /// <seealso cref="CommonConnectionString"/>
-    public SQLiteHelper(CommonConnectionString connectionString, SystemLogging? logging = null)
+    public SQLiteHelper(
+        CommonConnectionString connectionString,
+        Messages? messages = null,
+        SystemLogging? logging = null
+    )
     {
         try
         {
             ArgumentNullException.ThrowIfNull(argument: connectionString);
 
+            _messages = messages ?? new();
             _logging = logging;
             _connection = new(connectionString: connectionString.ToSQLite());
             _connection.Open();
@@ -73,6 +85,7 @@ public sealed partial class SQLiteHelper
     /// Initializes a new instance using in-memory database.
     /// </summary>
     /// <param name="cached">Whether to use shared cache (default: true).</param>
+    /// <param name="messages">Optional custom messages.</param>
     /// <param name="logging">Optional logging instance.</param>
     /// <remarks>
     /// Creates a new SQLiteHelper instance using in-memory database.
@@ -89,9 +102,14 @@ public sealed partial class SQLiteHelper
     /// </example>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/in-memory-databases"/>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache"/>
-    public SQLiteHelper(bool cached = true, SystemLogging? logging = null)
+    public SQLiteHelper(
+        bool cached = true,
+        Messages? messages = null,
+        SystemLogging? logging = null
+    )
         : this(
             connectionString: new CommonConnectionString().ToSQLiteInMemory(cached: cached),
+            messages: messages,
             logging: logging
         ) { }
 }

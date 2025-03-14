@@ -22,7 +22,7 @@ public sealed partial class SQLiteHelper
     /// <summary>
     /// Customizable message strings for operations.
     /// </summary>
-    private Messages _messages = new();
+    private readonly Messages _messages = new();
 
     /// <summary>
     /// Flag indicating if instance has been disposed.

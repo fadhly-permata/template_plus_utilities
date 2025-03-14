@@ -8,6 +8,7 @@ public sealed partial class PostgreHelper
     /// Initializes PostgreHelper with connection string.
     /// </summary>
     /// <param name="connectionString">PostgreSQL connection string.</param>
+    /// <param name="messages">Optional custom messages.</param>
     /// <param name="logging">Optional logging instance.</param>
     /// <remarks>
     /// Creates and opens database connection.
@@ -20,12 +21,17 @@ public sealed partial class PostgreHelper
     /// </example>
     /// <exception cref="ArgumentException">Thrown when connection string is null or empty.</exception>
     /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
-    public PostgreHelper(string connectionString, SystemLogging? logging = null)
+    public PostgreHelper(
+        string connectionString,
+        Messages? messages = null,
+        SystemLogging? logging = null
+    )
     {
         try
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
+            _messages = messages ?? new();
             _logging = logging;
             _connection = new(connectionString: connectionString);
             _connection.Open();
@@ -41,6 +47,7 @@ public sealed partial class PostgreHelper
     /// Initializes PostgreHelper with common connection string.
     /// </summary>
     /// <param name="connectionString">Common connection string instance.</param>
+    /// <param name="messages">Optional custom messages.</param>
     /// <param name="logging">Optional logging instance.</param>
     /// <remarks>
     /// Creates and opens database connection using common format.
@@ -57,12 +64,17 @@ public sealed partial class PostgreHelper
     /// </example>
     /// <exception cref="ArgumentNullException">Thrown when connection string is null.</exception>
     /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
-    public PostgreHelper(CommonConnectionString connectionString, SystemLogging? logging = null)
+    public PostgreHelper(
+        CommonConnectionString connectionString,
+        Messages? messages = null,
+        SystemLogging? logging = null
+    )
     {
         try
         {
             ArgumentNullException.ThrowIfNull(argument: connectionString);
 
+            _messages = messages ?? new();
             _logging = logging;
             _connection = new(connectionString: connectionString.ToPostgreSQL());
             _connection.Open();

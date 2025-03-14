@@ -480,7 +480,8 @@ public class CommonConnectionString
     /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-size"/>
     /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-shared"/>
     /// </remarks>
-    public static string ToSQLiteInMemory(bool cached = true) =>
+#pragma warning disable CA1822 // Mark members as static
+    public string ToSQLiteInMemory(bool cached = true) =>
         string.Join<string>(
             separator: ";",
             values:
@@ -490,6 +491,7 @@ public class CommonConnectionString
                 $"Cache={(cached ? "Shared" : "Private")}"
             ]
         );
+#pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
     /// Converts to MySQL connection string format.
