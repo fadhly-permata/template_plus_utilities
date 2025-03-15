@@ -1,10 +1,11 @@
 {
     "dotnet.defaultSolution": "IDC.sln",
-    "trivy.useConfigFile": false,
+    "trivy.useConfigFile": true,
     "trivy.onlyUseConfigFile": false,
     "trivy.offlineScan": false,
     "trivy.configFilePath": "/media/fadhly/Data/-Repo/TemplateAndUtility/.trivyrc",
     "trivy.ignoreFilePath": "/media/fadhly/Data/-Repo/TemplateAndUtility/fix-microsoft-repo.sh",
-    "trivy.secretScanning": true,
-    "trivy.fixedOnly": true
+    "trivy.secretScanning": false,
+    "trivy.fixedOnly": false,
+    "trivy.useIgnoreFile": true
 }

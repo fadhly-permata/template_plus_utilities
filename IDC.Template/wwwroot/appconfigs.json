@@ -17,10 +17,12 @@
     },
     "DependencyInjection": {
         "Caching": true,
-        "SQLite": true
+        "SQLite": true,
+        "MongoDB": true
     },
     "DefaultConStrings": {
-        "SQLite": "memory"
+        "SQLite": "memory",
+        "MongoDB": "local"
     },
     "Cors": {
         "Enabled": true,

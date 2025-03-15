@@ -40,6 +40,7 @@ internal partial class Program
                 const string ContentType = "application/json";
 
                 options.Filters.Add(filterType: typeof(ModelStateInvalidFilters));
+                options.Filters.Add(filterType: typeof(ExceptionHandlerFilter));
                 options.Filters.Add(item: new ConsumesAttribute(contentType: ContentType));
                 options.Filters.Add(item: new ProducesAttribute(contentType: ContentType));
                 options.Filters.Add(item: new ProducesResponseTypeAttribute(statusCode: 200));
@@ -51,7 +52,7 @@ internal partial class Program
                 );
                 options.Filters.Add(
                     item: new ProducesResponseTypeAttribute(
-                        type: typeof(APIResponse),
+                        type: typeof(APIResponseData<List<string>?>),
                         statusCode: StatusCodes.Status500InternalServerError
                     )
                 );

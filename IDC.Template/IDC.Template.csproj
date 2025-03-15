@@ -22,16 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions/" />
-    <Folder Include="Utilities/Constants/" />
-    <Folder Include="Utilities/Extensions/" />
-    <Folder Include="Utilities/Helpers/" />
-    <Folder Include="Utilities/Models/" />
-    <Folder Include="Utilities/Validations/" />
-    <Folder Include="wwwroot/OpenAPI/" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="../IDC.Utilities/IDC.Utilities.csproj" />
   </ItemGroup>
 

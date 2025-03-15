@@ -12,6 +12,7 @@ internal partial class Program
         ConfigureSystemLogging(builder: builder);
         ConfigureCaching(builder: builder);
         ConfigureSQLite(builder: builder);
+        ConfigureMongoDB(builder: builder);
     }
 
     private static void ConfigureLanguage(WebApplicationBuilder builder)
@@ -104,6 +105,30 @@ internal partial class Program
                             ? _systemLogging
                             : null
                     );
+            });
+    }
+
+    private static void ConfigureMongoDB(WebApplicationBuilder builder)
+    {
+        if (_appConfigs.Get(path: "DependencyInjection.MongoDB", defaultValue: false))
+            builder.Services.AddScoped(static _ =>
+            {
+                string defaultConString = _appConfigs.Get(
+                    path: "DefaultConStrings.MongoDB",
+                    defaultValue: "local"
+                );
+
+                return new MongoHelper(
+                    connectionString: new CommonConnectionString().FromConnectionString(
+                        _appSettings.Get(
+                            path: $"MongoDBSettings.{defaultConString}",
+                            defaultValue: "mongodb://localhost:27017"
+                        )
+                    ),
+                    logging: _appConfigs.Get(path: "Logging.AttachToDIObjects", defaultValue: true)
+                        ? _systemLogging
+                        : null
+                );
             });
     }
 }

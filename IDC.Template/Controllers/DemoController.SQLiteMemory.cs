@@ -1,5 +1,5 @@
-using IDC.Template.Models.SQLite;
 using IDC.Template.Utilities;
+using IDC.Template.Utilities.Models.SQLite;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;

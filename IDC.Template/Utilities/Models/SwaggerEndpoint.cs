@@ -1,4 +1,4 @@
-namespace IDC.Template.Models;
+namespace IDC.Template.Utilities.Models;
 
 /// <summary>
 /// Represents a Swagger/OpenAPI endpoint configuration

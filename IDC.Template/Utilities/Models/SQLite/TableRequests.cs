@@ -1,4 +1,4 @@
-namespace IDC.Template.Models.SQLite;
+namespace IDC.Template.Utilities.Models.SQLite;
 
 /// <summary>
 /// Request model for creating a new SQLite table
