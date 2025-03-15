@@ -10,7 +10,7 @@ public partial class DemoController
     /// Gets all available languages
     /// </summary>
     /// <returns>Array of language codes</returns>
-    [HttpGet("Languages")]
+    [Tags(tags: "Languages"), HttpGet(template: "Languages")]
     public APIResponseData<string[]> Get()
     {
         try
@@ -35,7 +35,7 @@ public partial class DemoController
     /// <param name="path">Message path in dot notation</param>
     /// <param name="lang">Optional language code</param>
     /// <returns>Localized message</returns>
-    [HttpGet("Languages/{path}")]
+    [Tags(tags: "Languages"), HttpGet(template: "Languages/{path}")]
     public APIResponseData<string> GetMessage(
         [FromRoute] string path,
         [FromQuery] string? lang = null
@@ -65,7 +65,7 @@ public partial class DemoController
     /// <param name="lang">Language code</param>
     /// <param name="path">Message path</param>
     /// <param name="value">New message value</param>
-    [HttpPut("Languages/{lang}/{path}")]
+    [Tags(tags: "Languages"), HttpPut(template: "Languages/{lang}/{path}")]
     public APIResponseData<bool> UpdateMessage(
         [FromRoute] string lang,
         [FromRoute] string path,
@@ -93,7 +93,7 @@ public partial class DemoController
     /// <summary>
     /// Reloads messages from file
     /// </summary>
-    [HttpPost("Languages/reload")]
+    [Tags(tags: "Languages"), HttpPost(template: "Languages/reload")]
     public APIResponseData<bool> Reload()
     {
         try

@@ -31,6 +31,5 @@ public partial class DemoController(
     Language language,
     SystemLogging systemLogging,
     Caching? cache = null,
-    SQLiteHelper? sqliteHelper = null,
-    MongoHelper? mongoHelper = null
+    SQLiteHelper? sqliteHelper = null
 ) : ControllerBase { }

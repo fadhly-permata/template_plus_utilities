@@ -26,7 +26,7 @@ public class Caching : IDisposable
     /// </summary>
     private void ThrowIfDisposed()
     {
-        ObjectDisposedException.ThrowIf(_disposed, nameof(Caching));
+        ObjectDisposedException.ThrowIf(condition: _disposed, instance: nameof(Caching));
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class Caching : IDisposable
             _cache.Clear();
             _disposed = true;
         }
-        GC.SuppressFinalize(this);
+        GC.SuppressFinalize(obj: this);
     }
 
     private class CacheItem
@@ -90,7 +90,10 @@ public class Caching : IDisposable
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
+        {
+            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
             return (T?)item.Value;
+        }
         return default;
     }
 
@@ -117,7 +120,10 @@ public class Caching : IDisposable
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
+        {
+            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes);
             return item.Value is T value ? value : defaultValue;
+        }
 
         if (saveIfNotFound)
             Set(key: key, value: defaultValue, expirationMinutes: expirationMinutes);
@@ -165,8 +171,12 @@ public class Caching : IDisposable
     public bool Exists(string key)
     {
         ThrowIfDisposed();
-        return _cache.TryGetValue(key: key, value: out var item)
-            && item.ExpiresAt > DateTime.UtcNow;
+        if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
+        {
+            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -232,6 +242,57 @@ public class Caching : IDisposable
         var now = DateTime.UtcNow;
         return _cache
             .Where(x => x.Value.ExpiresAt > now)
+            .Select(x =>
+            {
+                x.Value.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
+                return x;
+            })
             .ToDictionary(x => x.Key, x => x.Value.Value);
+    }
+
+    /// <summary>
+    /// Gets a value from cache or sets it if not found.
+    /// </summary>
+    /// <typeparam name="T">The type to convert the value to.</typeparam>
+    /// <param name="key">The cache key.</param>
+    /// <param name="value">The value to cache if key not found.</param>
+    /// <param name="expirationMinutes">Optional expiration time in minutes.</param>
+    /// <returns>The cached value or the newly set value.</returns>
+    /// <remarks>
+    /// This method combines get and set operations atomically. If the key exists and hasn't expired,
+    /// returns the existing value. Otherwise, sets the new value and returns it.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var user = cache.GetOrSet(
+    ///     key: "user-123",
+    ///     value: new User { Id = 123, Name = "John" },
+    ///     expirationMinutes: 30
+    /// );
+    /// </code>
+    /// </example>
+    /// <exception cref="ObjectDisposedException">Thrown when the cache has been disposed.</exception>
+    public T GetOrSet<T>(string key, T value, int expirationMinutes = 30)
+    {
+        ThrowIfDisposed();
+
+        if (
+            _cache.TryGetValue(key: key, value: out var existing)
+            && existing.ExpiresAt > DateTime.UtcNow
+        )
+        {
+            existing.ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes);
+            return existing.Value is T typedValue ? typedValue : value;
+        }
+
+        var item = new CacheItem
+        {
+            Value = value,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes)
+        };
+
+        _cache.AddOrUpdate(key: key, addValue: item, updateValueFactory: (_, _) => item);
+
+        return value;
     }
 }

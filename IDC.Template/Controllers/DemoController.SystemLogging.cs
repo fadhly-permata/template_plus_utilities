@@ -12,7 +12,7 @@ public partial class DemoController
     /// Logs an information message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [HttpPost("Log/Info")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Log/Info")]
     public APIResponse LogInfo([FromBody] string message)
     {
         try
@@ -35,7 +35,7 @@ public partial class DemoController
     /// Logs a warning message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [HttpPost("Log/Warning")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Log/Warning")]
     public APIResponse LogWarning([FromBody] string message)
     {
         try
@@ -58,7 +58,7 @@ public partial class DemoController
     /// Logs an error message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [HttpPost("Log/Error")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Log/Error")]
     public APIResponse LogError([FromBody] string message)
     {
         try
@@ -81,7 +81,7 @@ public partial class DemoController
     /// Logs an error with exception details
     /// </summary>
     /// <param name="message">Message to log</param>
-    [HttpPost("Log/ErrorWithException")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Log/ErrorWithException")]
     public APIResponse LogErrorWithException([FromBody] string message)
     {
         try
@@ -104,7 +104,7 @@ public partial class DemoController
     /// Gets list of log files from configured directory
     /// </summary>
     /// <returns>List of log files with their details</returns>
-    [HttpGet("Log/Files")]
+    [Tags(tags: "System Logging"), HttpGet(template: "Log/Files")]
     public APIResponseData<List<object>> GetLogFiles()
     {
         try
@@ -160,7 +160,7 @@ public partial class DemoController
     /// <param name="startTime">Start time in ISO 8601 format</param>
     /// <param name="endTime">End time in ISO 8601 format</param>
     /// <returns>List of log entries within the specified time range</returns>
-    [HttpGet("Log/Read")]
+    [Tags(tags: "System Logging"), HttpGet(template: "Log/Read")]
     public APIResponseData<List<object>> ReadLogs(
         [FromQuery] DateTime startTime,
         [FromQuery] DateTime endTime

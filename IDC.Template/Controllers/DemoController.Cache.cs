@@ -12,7 +12,7 @@ public partial class DemoController
     /// <param name="key">Cache key</param>
     /// <param name="value">Value to cache if key not exists</param>
     /// <returns>Cached value</returns>
-    [HttpPost("Cache/{key}")]
+    [Tags(tags: "Caches"), HttpPost(template: "Cache/{key}")]
     public APIResponseData<object?> Get([FromRoute] string key, [FromBody] object? value)
     {
         try
@@ -38,7 +38,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="key">Cache key</param>
     /// <returns>Cached value if exists</returns>
-    [HttpGet("Cache/{key}")]
+    [Tags(tags: "Caches"), HttpGet(template: "Cache/{key}")]
     public APIResponseData<object?> Get([FromRoute] string key)
     {
         try
@@ -63,7 +63,7 @@ public partial class DemoController
     /// <param name="key">Cache key</param>
     /// <param name="value">Value to cache</param>
     /// <returns>True if operation successful</returns>
-    [HttpPut("Cache/{key}")]
+    [Tags(tags: "Caches"), HttpPut(template: "Cache/{key}")]
     public APIResponseData<bool> Upsert([FromRoute] string key, [FromBody] object value)
     {
         try
@@ -89,7 +89,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="key">Cache key to remove</param>
     /// <returns>True if removal successful</returns>
-    [HttpDelete("Cache/{key}")]
+    [Tags(tags: "Caches"), HttpDelete(template: "Cache/{key}")]
     public APIResponseData<bool> Remove([FromRoute] string key)
     {
         try
@@ -112,7 +112,7 @@ public partial class DemoController
     /// Gets all cached key-value pairs that haven't expired
     /// </summary>
     /// <returns>Dictionary of cache keys and their values</returns>
-    [HttpGet("Cache")]
+    [Tags(tags: "Caches"), HttpGet(template: "Cache")]
     public APIResponseData<Dictionary<string, object?>> GetAll()
     {
         try

@@ -28,7 +28,7 @@ public partial class DemoController
     /// <param name="request">Request object containing table name and column definitions</param>
     /// <returns>APIResponseData containing affected rows count</returns>W
     /// <exception cref="Exception">Thrown when table creation fails</exception>
-    [HttpPost("SQLite/Tables")]
+    [Tags(tags: "SQLite In Memory"), HttpPost(template: "SQLite/Tables")]
     public APIResponseData<object> CreateTable([FromBody] CreateTableRequest request)
     {
         try
@@ -77,7 +77,7 @@ public partial class DemoController
     /// <param name="request">Request object containing columns to add and remove</param>
     /// <returns>APIResponseData containing affected rows count</returns>
     /// <exception cref="Exception">Thrown when table alteration fails</exception>
-    [HttpPut("SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpPut(template: "SQLite/Tables/{tableName}")]
     public APIResponseData<object> AlterTable(
         [FromRoute] string tableName,
         [FromBody] AlterTableRequest request
@@ -146,7 +146,7 @@ public partial class DemoController
     /// <param name="tableName">Name of the table to drop</param>
     /// <returns>APIResponseData containing affected rows count</returns>
     /// <exception cref="Exception">Thrown when table drop operation fails</exception>
-    [HttpDelete("SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpDelete(template: "SQLite/Tables/{tableName}")]
     public APIResponseData<object> DropTable([FromRoute] string tableName)
     {
         try
@@ -201,7 +201,7 @@ public partial class DemoController
     /// </remarks>
     /// <returns>APIResponseData containing list of tables with their column definitions</returns>
     /// <exception cref="Exception">Thrown when table information cannot be retrieved</exception>
-    [HttpGet("SQLite/Tables")]
+    [Tags(tags: "SQLite In Memory"), HttpGet(template: "SQLite/Tables")]
     public APIResponseData<object> GetAllTables()
     {
         try
@@ -262,7 +262,7 @@ public partial class DemoController
     /// <param name="tableName">Name of the table to get information for</param>
     /// <returns>Table metadata including column definitions</returns>
     /// <exception cref="Exception">Thrown when table information cannot be retrieved</exception>
-    [HttpGet("SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpGet(template: "SQLite/Tables/{tableName}")]
     public APIResponseData<object> GetTableInfo([FromRoute] string tableName)
     {
         try
