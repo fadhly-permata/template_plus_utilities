@@ -15,6 +15,54 @@ internal partial class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
+            var openApiInfo = new OpenApiInfo
+            {
+                Title = _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.Title")!,
+                Version = _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.Version")!,
+                Description = _appConfigs.Get<string>(
+                    path: "SwaggerConfig.OpenApiInfo.Description"
+                )!,
+                TermsOfService = new Uri(
+                    _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.TermsOfService")!,
+                    UriKind.Relative
+                ),
+                Contact = new OpenApiContact
+                {
+                    Name = _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.Contact.Name")!,
+                    Email = _appConfigs.Get<string>(
+                        path: "SwaggerConfig.OpenApiInfo.Contact.Email"
+                    )!,
+                    Url = new Uri(
+                        _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.Contact.Url")!
+                    )
+                },
+                License = new OpenApiLicense
+                {
+                    Name = _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.License.Name")!,
+                    Url = new Uri(
+                        _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.License.Url")!,
+                        UriKind.Relative
+                    )
+                }
+            };
+
+            options.SwaggerDoc("Main", openApiInfo);
+            options.SwaggerDoc(
+                "Demo",
+                new OpenApiInfo { Title = "Demo API", Version = openApiInfo.Version }
+            );
+
+            // Konfigurasi untuk mengelompokkan berdasarkan Tags
+            options.TagActionsBy(api =>
+                api.ActionDescriptor.EndpointMetadata.OfType<TagsAttribute>()
+                    .SelectMany(attr => attr.Tags)
+                    .Distinct()
+                    .ToList()
+            );
+
+            // Urutkan Tags
+            options.OrderActionsBy(apiDesc => apiDesc.GroupName);
+
             options.AddSecurityDefinition(
                 "ApiKey",
                 new OpenApiSecurityScheme
@@ -44,48 +92,26 @@ internal partial class Program
                 }
             );
 
-            options.SwaggerDoc(
-                name: "Main",
-                info: _appConfigs
-                    .Get<JObject>(path: "SwaggerConfig.OpenApiInfo")
-                    ?.ToObject<OpenApiInfo>()
-                    ?? new OpenApiInfo
-                    {
-                        Title = _appConfigs.Get(path: "AppName", defaultValue: "IDC Template API"),
-                        Version = "v1"
-                    }
-            );
-            options.SwaggerDoc(
-                name: "Demo",
-                info: _appConfigs
-                    .Get<JObject>(path: "SwaggerConfig.OpenApiInfo")
-                    ?.ToObject<OpenApiInfo>()
-                    ?? new OpenApiInfo { Title = "IDC Template Demo API", Version = "v1" }
-            );
-
-            var swaggerList = builder
-                .Configuration.GetSection("SwaggerList")
-                .Get<List<SwaggerEndpoint>>()
-                ?.Where(endpoint =>
-                    endpoint.Name
-                        != _appConfigs.Get(path: "AppName", defaultValue: "IDC Template API")
-                    && endpoint.Name != "IDC Template Demo API"
-                );
-
-            if (swaggerList != null)
-            {
-                foreach (var endpoint in swaggerList)
+            options.DocInclusionPredicate(
+                (docName, api) =>
                 {
-                    options.SwaggerDoc(
-                        name: endpoint.Name,
-                        info: new OpenApiInfo { Title = endpoint.Name, Version = "v1" }
-                    );
+                    if (docName == "Demo")
+                        return api.RelativePath?.ToLower().Contains("/demo/") == true
+                            || api.GroupName?.Equals("Demo", StringComparison.OrdinalIgnoreCase)
+                                == true;
+
+                    if (docName == "Main")
+                        return api.GroupName?.Equals("Main", StringComparison.OrdinalIgnoreCase)
+                                == true
+                            || api.GroupName == null;
+
+                    return true;
                 }
-            }
+            );
 
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(path1: AppContext.BaseDirectory, path2: xmlFile);
-            options.IncludeXmlComments(filePath: xmlPath);
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            options.IncludeXmlComments(xmlPath);
 
             options.DocumentFilter<DefaultGroupDocFilter>();
             if (_appConfigs.Get<bool>(path: "SwaggerConfig.UI.SortEndpoints"))
@@ -99,12 +125,18 @@ internal partial class Program
             return;
 
         app.UseSwagger();
-        app.UseSwaggerUI(setupAction: options =>
+        app.UseSwaggerUI(options =>
         {
-            ConfigureMainEndpoint(options: options, appConfigs: _appConfigs);
-            ConfigureDemoEndpoint(options: options);
-            ConfigureAdditionalEndpoints(options: options, app: app, appConfigs: _appConfigs);
-            ConfigureSwaggerUIStyle(options: options);
+            // Main endpoints
+            ConfigureMainEndpoint(options, _appConfigs);
+
+            // Demo endpoints
+            ConfigureDemoEndpoint(options);
+
+            // Additional endpoints from SwaggerList
+            ConfigureAdditionalEndpoints(options, app, _appConfigs);
+
+            ConfigureSwaggerUIStyle(options);
         });
     }
 
@@ -163,7 +195,6 @@ internal partial class Program
         options.HeadContent =
             @"
                 <link rel='stylesheet' type='text/css' href='/css/swagger-custom.css' />
-                <link rel='shortcut icon' type='image/png' href='/images/logo_idecision2.png'/>
             ";
 
         options.InjectJavascript("/js/swagger-theme-switcher.js");

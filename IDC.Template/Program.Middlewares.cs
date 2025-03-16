@@ -45,7 +45,11 @@ internal partial class Program
                 predicate: context =>
                 {
                     var path = context.Request.Path.Value?.ToLower();
-                    return path?.StartsWith("/swagger") != true;
+                    return path?.StartsWith("/swagger") != true
+                        && path?.StartsWith("/css") != true
+                        && path?.StartsWith("/js") != true
+                        && path?.StartsWith("/themes") != true
+                        && path?.StartsWith("/images") != true;
                 },
                 configuration: appBuilder =>
                 {

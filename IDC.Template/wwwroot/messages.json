@@ -47,10 +47,12 @@
         "query_preview": "The SQL query has been successfully previewed."
       }
     },
-    "api_key": {
-      "invalid": "Invalid API key provided.",
-      "missing": "API key is missing from request headers.",
-      "not_registered": "No registered API keys found."
+    "security": {
+      "api_key": {
+        "invalid": "Invalid API key provided.",
+        "missing": "API key is missing from request headers.",
+        "not_registered": "No registered API keys found."
+      }
     }
   },
   "id": {

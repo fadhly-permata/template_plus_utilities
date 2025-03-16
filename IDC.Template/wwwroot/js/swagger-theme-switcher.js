@@ -72,19 +72,39 @@
                     }
                 };
 
-                // Check immediately
-                checkAndAddButton();
+                // Add event listener for XHR/Fetch completion
+                const originalFetch = window.fetch;
+                window.fetch = function() {
+                    return originalFetch.apply(this, arguments)
+                        .finally(() => {
+                            setTimeout(checkAndAddButton, 500);
+                        });
+                };
 
-                // Keep checking every 500ms for 5 seconds
-                const interval = setInterval(checkAndAddButton, 500);
-                setTimeout(() => clearInterval(interval), 5000);
+                const originalXHR = window.XMLHttpRequest;
+                window.XMLHttpRequest = function() {
+                    const xhr = new originalXHR();
+                    const originalOnReadyStateChange = xhr.onreadystatechange;
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            setTimeout(checkAndAddButton, 1500);
+                        }
+                        if (originalOnReadyStateChange) {
+                            originalOnReadyStateChange.apply(this, arguments);
+                        }
+                    };
+                    return xhr;
+                };
+
+                // Initial check
+                setTimeout(checkAndAddButton, 1500);
             }
         },
         themes: {
             getOptions: () => [
-                { name: 'Monokai (Auto Dark/Light)', value: '/themes/theme-monokai-dark.css' },
+                { name: 'Monokai (Auto: Dark/Light)', value: '/themes/theme-monokai-dark.css' },
                 { name: 'Material', value: '/themes/theme-material.css' },
-                { name: 'Monokai (Light Only)', value: '/themes/theme-monokai.css' },
+                { name: 'Monokai (Light & Dark Combination)', value: '/themes/theme-monokai.css' },
                 { name: 'Feeling Blue', value: '/themes/theme-feeling-blue.css' },
                 { name: 'Flattop', value: '/themes/theme-flattop.css' },
                 { name: 'Muted', value: '/themes/theme-muted.css' },

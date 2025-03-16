@@ -61,7 +61,7 @@
             // Aktifkan rate limiting
             "Enabled": true,
             // Maksimum jumlah request per menit
-            "MaxRequestsPerMinute": 5
+            "MaxRequestsPerMinute": 100
         },
         // Aktifkan middleware security headers
         "SecurityHeaders": {

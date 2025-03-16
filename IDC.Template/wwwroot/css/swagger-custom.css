@@ -6,10 +6,10 @@
 
 .topbar-wrapper .link:before {
     background-image: url('/images/idx-logo-white.png');
-    background-size: 253px 49px;
     display: inline-block;
-    width: 253px;
-    height: 49px;
+    background-size: 126.5px 24.5px;
+    width: 126.5px;
+    height: 24.5px;
     content: "";
 }
 
