@@ -55,17 +55,17 @@ public sealed class AppConfigsHandler : IDisposable
     }
 
     /// <summary>
-    /// Loads configuration from the default appconfigs.json file.
+    /// Loads configuration from the default appconfigs.jsonc file.
     /// </summary>
     /// <returns>A new instance of AppConfigsHandler.</returns>
-    /// <exception cref="FileNotFoundException">Thrown when appconfigs.json is not found.</exception>
+    /// <exception cref="FileNotFoundException">Thrown when appconfigs.jsonc is not found.</exception>
     /// <exception cref="JsonReaderException">Thrown when JSON parsing fails.</exception>
     public static AppConfigsHandler Load()
     {
         var appConfigPath = Path.Combine(
             path1: Directory.GetCurrentDirectory(),
             path2: "wwwroot",
-            path3: "appconfigs.json"
+            path3: "appconfigs.jsonc"
         );
         var jsonContent = File.ReadAllText(appConfigPath);
         return new(JObject.Parse(jsonContent));
@@ -178,14 +178,14 @@ public sealed class AppConfigsHandler : IDisposable
     }
 
     /// <summary>
-    /// Saves the current configuration to the appconfigs.json file.
+    /// Saves the current configuration to the appconfigs.jsonc file.
     /// </summary>
     private void SaveToFile()
     {
         var appConfigPath = Path.Combine(
             Directory.GetCurrentDirectory(),
             "wwwroot",
-            "appconfigs.json"
+            "appconfigs.jsonc"
         );
         File.WriteAllText(appConfigPath, _config.ToString(Newtonsoft.Json.Formatting.Indented));
     }

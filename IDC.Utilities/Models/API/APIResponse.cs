@@ -45,7 +45,7 @@ public class APIResponse
     /// </example>
     public virtual APIResponse ChangeStatus(string? status)
     {
-        Status = status ?? throw new ArgumentNullException(nameof(status));
+        Status = status ?? throw new ArgumentNullException(paramName: nameof(status));
         return this;
     }
 
@@ -88,7 +88,7 @@ public class APIResponse
     /// </example>
     public virtual APIResponse ChangeMessage(string? message)
     {
-        Message = message ?? throw new ArgumentNullException(nameof(message));
+        Message = message ?? throw new ArgumentNullException(paramName: nameof(message));
         return this;
     }
 
@@ -131,7 +131,7 @@ public class APIResponse
     public virtual APIResponse ChangeMessage(Exception exception, bool includeStackTrace = false)
     {
         Message = exception.GetExceptionDetails(includeStackTrace: includeStackTrace);
-        Console.WriteLine(Message);
+        Console.WriteLine(value: Message);
 
         return this;
     }
@@ -159,7 +159,7 @@ public class APIResponse
     )
     {
         Message = exception.GetExceptionDetails(includeStackTrace: includeStackTrace);
-        logging.LogError(Message);
+        logging.LogError(message: Message);
 
         return this;
     }

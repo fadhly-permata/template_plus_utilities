@@ -16,7 +16,6 @@ namespace IDC.Template.Controllers;
 /// <param name="appConfigs">Application configuration handler</param>
 /// <param name="cache">Optional caching service for handling cached data</param>
 /// <param name="sqliteHelper">Optional SQLite database helper for data operations</param>
-/// <param name="mongoHelper">Optional MongoDB helper for data operations</param>
 /// <example>
 /// <code>
 /// var controller = new DemoController(new SystemLogging());

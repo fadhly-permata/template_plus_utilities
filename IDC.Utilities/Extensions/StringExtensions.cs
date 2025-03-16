@@ -58,8 +58,9 @@ public static class StringExtensions
     public static string ToSnakeCase(this string? value) =>
         string.IsNullOrEmpty(value: value)
             ? string.Empty
-            : Regex
-                .Replace(input: value, pattern: "([a-z])([A-Z])", replacement: "$1_$2")
+            : RegexPatternCollections
+                .SnakeCase()
+                .Replace(input: value, replacement: "$1_$2")
                 .ToLower();
 
     /// <summary>
@@ -76,8 +77,9 @@ public static class StringExtensions
     public static string ToKebabCase(this string? value) =>
         string.IsNullOrEmpty(value: value)
             ? string.Empty
-            : Regex
-                .Replace(input: value, pattern: "([a-z])([A-Z])", replacement: "$1-$2")
+            : RegexPatternCollections
+                .KebabCase()
+                .Replace(input: value, replacement: "$1-$2")
                 .ToLower();
 
     /// <summary>

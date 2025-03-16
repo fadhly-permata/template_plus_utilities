@@ -1,11 +1,5 @@
 using IDC.Template.Utilities.DI;
-using IDC.Template.Utilities.Middlewares;
 using IDC.Utilities;
-using IDC.Utilities.Models.API;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 internal partial class Program
 {
@@ -16,6 +10,10 @@ internal partial class Program
 
     private static void Main(string[] args)
     {
+        // Increase file watcher limit for Linux systems
+        if (OperatingSystem.IsLinux())
+            Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "1");
+
         var builder = WebApplication.CreateBuilder(args: args);
 
         // Register Dependency Injections
@@ -28,77 +26,10 @@ internal partial class Program
         var app = builder.Build();
 
         ConfigureMiddlewares(app: app);
-        app.UseCors("CorsPolicy");
+
+        if (_appConfigs.Get<bool>(path: "Security.Cors.Enabled"))
+            app.UseCors("CorsPolicy");
+
         app.Run();
-    }
-
-    private static void ConfigureServices(WebApplicationBuilder builder)
-    {
-        builder
-            .Services.AddControllers(options =>
-            {
-                const string ContentType = "application/json";
-
-                options.Filters.Add(filterType: typeof(ModelStateInvalidFilters));
-                options.Filters.Add(filterType: typeof(ExceptionHandlerFilter));
-                options.Filters.Add(item: new ConsumesAttribute(contentType: ContentType));
-                options.Filters.Add(item: new ProducesAttribute(contentType: ContentType));
-                options.Filters.Add(item: new ProducesResponseTypeAttribute(statusCode: 200));
-                options.Filters.Add(
-                    item: new ProducesResponseTypeAttribute(
-                        type: typeof(APIResponseData<List<string>?>),
-                        statusCode: StatusCodes.Status400BadRequest
-                    )
-                );
-                options.Filters.Add(
-                    item: new ProducesResponseTypeAttribute(
-                        type: typeof(APIResponseData<List<string>?>),
-                        statusCode: StatusCodes.Status500InternalServerError
-                    )
-                );
-            })
-            .AddNewtonsoftJson(setupAction: options =>
-            {
-                options.SerializerSettings.ContractResolver =
-                    new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
-
-        // Add CORS policy
-        if (_appConfigs.Get<bool>(path: "Cors.Enabled"))
-        {
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    name: "CorsPolicy",
-                    policy =>
-                    {
-                        policy
-                            .WithOrigins(
-                                _appConfigs.Get<string[]>(path: "Cors.AllowedHosts") ?? ["*"]
-                            )
-                            .WithHeaders(
-                                _appConfigs.Get<string[]>(path: "Cors.AllowedHeaders") ?? ["*"]
-                            )
-                            .WithMethods(
-                                _appConfigs.Get<string[]>(path: "Cors.AllowedMethods") ?? ["*"]
-                            );
-                    }
-                );
-            });
-        }
-    }
-
-    private static void ConfigureStaticFiles(WebApplication app)
-    {
-        app.UseStaticFiles(
-            options: new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(
-                    root: Path.Combine(path1: Directory.GetCurrentDirectory(), path2: "wwwroot")
-                ),
-                RequestPath = ""
-            }
-        );
     }
 }

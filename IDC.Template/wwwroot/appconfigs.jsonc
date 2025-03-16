@@ -1,0 +1,161 @@
+{
+    // Nama applikasi, digunakan untuk menampilkan nama applikasi di Swagger UI
+    "AppName": "IDC.Template",
+    // Bahasa yang digunakan untuk menampilkan pesan. Opsi: en, id
+    "Language": "en",
+    // Pengaturan logging
+    "Logging": {
+        // Pengaturan level logging
+        "LogLevel": {
+            // Level logging default, opsi: Information, Warning, Error
+            "Default": "Information",
+            // Level logging untuk Microsoft.AspNetCore, opsi: Information, Warning, Error
+            "Microsoft.AspNetCore": "Warning"
+        },
+        // Pasangkan logging ke objek DI 
+        "AttachToDIObjects": true,
+        // Lampirkan stack trace ke log exception
+        "IncludeStackTrace": true,
+        // Aktifkan logging ke OS
+        "OSLogging": true,
+        // Aktifkan logging ke file
+        "FileLogging": true,
+        // Aktifkan penghapusan otomatis log lama
+        "AutoCleanupOldLogs": true,
+        // Maksimum usia log lama sebelum dihapus (dalam satuan hari)
+        "MaxOldlogAge": 30,
+        // Direktori dasar untuk penyimpanan log
+        "BaseDirectory": "",
+        // Direktori untuk menyimpan log
+        "LogDirectory": "/wwwroot/logs/"
+    },
+    // Pengaturan Dependency Injection
+    "DependencyInjection": {
+        // Aktifkan caching
+        "Caching": {
+            // Aktifkan caching
+            "Enable": true,
+            // Waktu kadaluarsa cache dalam satuan menit
+            "ExpirationInMinutes": 5
+        },
+        // Aktifkan SQLite
+        "SQLite": true,
+        // Aktifkan MongoDB
+        "MongoDB": true
+    },
+    // Pengaturan koneksi database default
+    "DefaultConStrings": {
+        // Nama koneksi database SQLite default
+        "SQLite": "memory",
+        // Nama koneksi database MongoDB default
+        "MongoDB": "local"
+    },
+    // Pengaturan Middlewares
+    "Middlewares": {
+        // Aktifkan middleware request logging
+        "RequestLogging": true,
+        // Aktifkan middleware response compression
+        "ResponseCompression": true,
+        // Aktifkan middleware rate limiting
+        "RateLimiting": {
+            // Aktifkan rate limiting
+            "Enabled": true,
+            // Maksimum jumlah request per menit
+            "MaxRequestsPerMinute": 5
+        },
+        // Aktifkan middleware security headers
+        "SecurityHeaders": {
+            // Aktifkan middleware security headers
+            "Enabled": true,
+            // Aktifkan middleware security headers untuk HTTP
+            "EnableForHttp": true,
+            // Aktifkan middleware security headers untuk HTTPS
+            "EnableForHttps": true,
+            // Aktifkan middleware security headers untuk semua endpoint
+            "EnableForAllEndpoints": true,
+            // Opsi tambahan untuk middleware security headers
+            "Options": {
+                "X-Frame-Options": "DENY",
+                "X-Content-Type-Options": "nosniff",
+                "X-XSS-Protection": "1; mode=block",
+                "Referrer-Policy": "strict-origin-when-cross-origin",
+                "Content-Security-Policy": "default-src 'self'",
+                "Permissions-Policy": "geolocation=(), camera=()"
+            }
+        },
+        // Aktifkan middleware autentikasi API key
+        "ApiKeyAuthentication": true
+    },
+    // Pengaturan keamanan
+    "Security": {
+        // Pengaturan CORS
+        "Cors": {
+            // Aktifkan CORS
+            "Enabled": true,
+            // Host yang diizinkan untuk mengakses API
+            "AllowedHosts": [
+                "http://*",
+                "https://*",
+                "http://localhost:*"
+            ],
+            // Header yang diizinkan untuk dikirim ke API. 
+            // Opsi: Authorization, Content-Type, Accept, Origin, X-Requested-With
+            "AllowedHeaders": [
+                "X-API-Key",
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
+            ],
+            // Metode HTTP yang diizinkan untuk mengakses API. Opsi: GET, POST, PUT, DELETE, OPTIONS
+            "AllowedMethods": [
+                "GET",
+                "POST"
+            ]
+        },
+        // Daftar API key yang terdaftar
+        "RegisteredApiKeyList": [
+            "NFHUZqt0zmL6siZ7/ynQ8nljJtsQrT3h0+nQZHhIQhk="
+        ]
+    },
+    // Pengaturan Swagger
+    "SwaggerConfig": {
+        // Pengaturan UI Swagger
+        "UI": {
+            // Aktifkan Swagger UI
+            "Enable": true,
+            // Urutkan endpoint berdasarkan nama
+            "SortEndpoints": true,
+            // Tema Swagger UI
+            "Theme": "/themes/theme-monokai-dark.css"
+        },
+        // Pengaturan OpenAPI
+        "OpenApiInfo": {
+            // Informasi OpenAPI
+            "Title": "API - IDC Template",
+            // Versi OpenAPI
+            "Version": "v2",
+            // Deskripsi OpenAPI
+            "Description": "API documentation for IDC Template project",
+            // Syarat dan ketentuan OpenAPI
+            "TermsOfService": "/openapi/terms.html",
+            // Kontak OpenAPI
+            "Contact": {
+                // Nama kontak OpenAPI
+                "Name": "Contact Support",
+                // Email kontak OpenAPI
+                "Email": "fadhly.permata@idxpartners.com",
+                // URL kontak OpenAPI
+                "Url": "https://idxpartners.com/contact-us/"
+            },
+            // Lisensi OpenAPI
+            "License": {
+                // Nama lisensi OpenAPI
+                "Name": "Proprietary License",
+                // URL lisensi OpenAPI
+                "Url": "/openapi/license.html"
+            }
+        }
+    }
+}

@@ -32,11 +32,11 @@ public static class ExceptionExtensions
 
         while (inner != null)
         {
-            messages.Add(inner.Message);
+            messages.Add(item: inner.Message);
             inner = inner.InnerException;
         }
 
-        return string.Join(separator, messages);
+        return string.Join(separator: separator, values: messages);
     }
 
     /// <summary>
@@ -63,32 +63,30 @@ public static class ExceptionExtensions
 
         void AddExceptionInfo(Exception exception, string prefix = "")
         {
-            sb.AppendLine($"{prefix}Type: {exception.GetType().FullName}");
-            sb.AppendLine($"{prefix}Message: {exception.Message}");
+            sb.AppendLine(handler: $"{prefix}Type: {exception.GetType().FullName}");
+            sb.AppendLine(handler: $"{prefix}Message: {exception.Message}");
 
-            if (includeStackTrace && !string.IsNullOrEmpty(exception.StackTrace))
+            if (includeStackTrace && !string.IsNullOrEmpty(value: exception.StackTrace))
             {
-                sb.AppendLine($"{prefix}StackTrace:");
-                sb.AppendLine($"{prefix}{exception.StackTrace.Replace("at ", "--> ")}");
+                sb.AppendLine(handler: $"{prefix}StackTrace:");
+                sb.AppendLine(handler: $"{prefix}{exception.StackTrace.Replace("at ", "--> ")}");
             }
 
             if (exception.Data.Count > 0)
             {
-                sb.AppendLine($"{prefix}Additional Data:");
+                sb.AppendLine(handler: $"{prefix}Additional Data:");
                 foreach (var key in exception.Data.Keys)
-                {
-                    sb.AppendLine($"{prefix}  {key}: {exception.Data[key]}");
-                }
+                    sb.AppendLine(handler: $"{prefix}  {key}: {exception.Data[key]}");
             }
 
             if (exception.InnerException != null)
             {
-                sb.AppendLine($"{prefix}Inner Exception:");
-                AddExceptionInfo(exception.InnerException, prefix + "  ");
+                sb.AppendLine(handler: $"{prefix}Inner Exception:");
+                AddExceptionInfo(exception: exception.InnerException, prefix: $"{prefix}  ");
             }
         }
 
-        AddExceptionInfo(ex);
+        AddExceptionInfo(exception: ex);
         return sb.ToString();
     }
 
@@ -131,9 +129,8 @@ public static class ExceptionExtensions
     public static Exception AddData(this Exception ex, Dictionary<string, object?> data)
     {
         foreach (var kvp in data)
-        {
             ex.Data[kvp.Key] = kvp.Value;
-        }
+
         return ex;
     }
 
@@ -160,16 +157,12 @@ public static class ExceptionExtensions
     /// </example>
     public static T? GetData<T>(this Exception ex, string key, T? defaultValue = default)
     {
-        if (!ex.Data.Contains(key))
+        if (!ex.Data.Contains(key: key))
             return defaultValue;
 
         try
         {
-            var value = ex.Data[key];
-            if (value is T typedValue)
-                return typedValue;
-
-            return defaultValue;
+            return ex.Data[key] is T typedValue ? typedValue : defaultValue;
         }
         catch
         {

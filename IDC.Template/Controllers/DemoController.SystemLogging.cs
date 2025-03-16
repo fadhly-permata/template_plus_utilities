@@ -9,7 +9,7 @@ namespace IDC.Template.Controllers;
 public partial class DemoController
 {
     /// <summary>
-    /// Logs an information message
+    /// Write logs an information message
     /// </summary>
     /// <param name="message">Message to log</param>
     [Tags(tags: "System Logging"), HttpPost(template: "Log/Info")]
@@ -32,7 +32,7 @@ public partial class DemoController
     }
 
     /// <summary>
-    /// Logs a warning message
+    /// Write logs a warning message
     /// </summary>
     /// <param name="message">Message to log</param>
     [Tags(tags: "System Logging"), HttpPost(template: "Log/Warning")]
@@ -55,7 +55,7 @@ public partial class DemoController
     }
 
     /// <summary>
-    /// Logs an error message
+    /// Write logs an error message
     /// </summary>
     /// <param name="message">Message to log</param>
     [Tags(tags: "System Logging"), HttpPost(template: "Log/Error")]
@@ -78,7 +78,7 @@ public partial class DemoController
     }
 
     /// <summary>
-    /// Logs an error with exception details
+    /// Write logs an error with exception details
     /// </summary>
     /// <param name="message">Message to log</param>
     [Tags(tags: "System Logging"), HttpPost(template: "Log/ErrorWithException")]

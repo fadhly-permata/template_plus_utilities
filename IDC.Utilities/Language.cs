@@ -41,23 +41,21 @@ public class Language : IDisposable
     /// Throws ObjectDisposedException if the instance has been disposed.
     /// </summary>
     /// <exception cref="ObjectDisposedException">Thrown when the instance is accessed after disposal.</exception>
-    private void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, nameof(Language));
-    }
+    private void ThrowIfDisposed() =>
+        ObjectDisposedException.ThrowIf(condition: _disposed, instance: nameof(Language));
 
     /// <summary>
     /// Releases resources used by the Language instance.
     /// </summary>
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _messages = null;
-            _jsonFilePath = null;
-            _disposed = true;
-            GC.SuppressFinalize(this);
-        }
+        if (_disposed)
+            return;
+
+        _messages = null;
+        _jsonFilePath = null;
+        _disposed = true;
+        GC.SuppressFinalize(obj: this);
     }
 
     /// <summary>
@@ -74,9 +72,7 @@ public class Language : IDisposable
         ArgumentNullException.ThrowIfNull(argument: jsonPath);
 
         if (!File.Exists(path: jsonPath))
-        {
             throw new FileNotFoundException(message: $"Language file not found: {jsonPath}");
-        }
 
         var jsonContent = File.ReadAllText(path: jsonPath);
         var config = JObject.Parse(json: jsonContent);
@@ -97,6 +93,7 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(argument: config);
+
         _messages = config;
         _defaultLanguage = defaultLanguage;
     }
@@ -115,20 +112,16 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         if (_messages is null)
-        {
             throw new InvalidOperationException(
                 message: "Language messages have not been initialized. Call Initialize first."
             );
-        }
 
         try
         {
             _messages = _messages.PropUpsert(path: $"{language}.{path}", value: value);
 
             if (saveToFile && !string.IsNullOrEmpty(value: _jsonFilePath))
-            {
                 SaveToFile();
-            }
 
             return true;
         }
@@ -147,21 +140,20 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         if (_messages is null)
-        {
             throw new InvalidOperationException(
                 message: "Language messages have not been initialized."
             );
-        }
 
         if (string.IsNullOrEmpty(value: _jsonFilePath))
-        {
             throw new InvalidOperationException(
                 message: "No file path set. Initialize using InitializeFromFile first."
             );
-        }
 
-        var jsonContent = _messages.ToString(formatting: Newtonsoft.Json.Formatting.Indented);
-        File.WriteAllText(path: _jsonFilePath, contents: jsonContent, encoding: Encoding.UTF8);
+        File.WriteAllText(
+            path: _jsonFilePath,
+            contents: _messages.ToString(formatting: Newtonsoft.Json.Formatting.Indented),
+            encoding: Encoding.UTF8
+        );
     }
 
     /// <summary>
@@ -176,20 +168,15 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         if (_messages is null)
-        {
             throw new InvalidOperationException(
                 message: "Language messages have not been initialized. Call Initialize first."
             );
-        }
 
         language ??= _defaultLanguage;
-
         var result = _messages.PropGet<string>(path: $"{language}.{path}");
 
         if (result is null && language != _defaultLanguage)
-        {
             result = _messages.PropGet<string>(path: $"{_defaultLanguage}.{path}");
-        }
 
         return result ?? path;
     }
@@ -204,11 +191,9 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         if (_messages is null)
-        {
             throw new InvalidOperationException(
                 message: "Language messages have not been initialized. Call Initialize first."
             );
-        }
 
         return [.. _messages.Properties().Select(selector: static p => p.Name)];
     }
@@ -223,26 +208,20 @@ public class Language : IDisposable
     {
         ThrowIfDisposed();
         if (string.IsNullOrEmpty(value: _jsonFilePath))
-        {
             throw new InvalidOperationException(
                 message: "No file path set. Initialize using InitializeFromFile first."
             );
-        }
 
         try
         {
             if (!File.Exists(path: _jsonFilePath))
-            {
                 throw new FileNotFoundException(
                     message: $"Language file not found: {_jsonFilePath}"
                 );
-            }
 
-            var jsonContent = File.ReadAllText(path: _jsonFilePath);
-            var config = JObject.Parse(json: jsonContent);
             var currentDefaultLanguage = _defaultLanguage;
 
-            _messages = config;
+            _messages = JObject.Parse(json: File.ReadAllText(path: _jsonFilePath));
             _defaultLanguage = currentDefaultLanguage;
 
             return true;

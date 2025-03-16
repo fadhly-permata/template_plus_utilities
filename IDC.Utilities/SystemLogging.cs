@@ -120,16 +120,16 @@ public sealed class SystemLogging : IDisposable
         _source = source ?? "IDC.Template";
         _autoCleanupOldLogs = autoCleanupOldLogs;
         _maxOldlogAge = maxOldlogAge;
-        _baseDirectory = string.IsNullOrWhiteSpace(baseDirectory)
+        _baseDirectory = string.IsNullOrWhiteSpace(value: baseDirectory)
             ? Directory.GetCurrentDirectory()
             : baseDirectory;
         _includeStackTrace = includeStackTrace;
 
-        if (_enableOsLogging && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (_enableOsLogging && RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Windows))
         {
-            if (!EventLog.SourceExists(_source))
-                EventLog.CreateEventSource(_source, DefaultLogName);
-            _windowsEventLog = new(DefaultLogName, ".", _source);
+            if (!EventLog.SourceExists(source: _source))
+                EventLog.CreateEventSource(source: _source, logName: DefaultLogName);
+            _windowsEventLog = new(logName: DefaultLogName, machineName: ".", source: _source);
         }
 
         if (_autoCleanupOldLogs)
@@ -139,7 +139,12 @@ public sealed class SystemLogging : IDisposable
     /// <summary>Gets the full path to the log directory</summary>
     /// <returns>Absolute path to log directory</returns>
     private string GetLogPath() =>
-        Path.GetFullPath(Path.Combine(_baseDirectory, _logDirectory.TrimStart('/', '\\')));
+        Path.GetFullPath(
+            path: Path.Combine(
+                path1: _baseDirectory,
+                path2: _logDirectory.TrimStart(trimChars: ['/', '\\'])
+            )
+        );
 
     /// <summary>Removes log files older than MaxOldLogAge days</summary>
     private void CleanupOldLogs()
@@ -147,50 +152,47 @@ public sealed class SystemLogging : IDisposable
         try
         {
             var logPath = GetLogPath();
-            if (!Directory.Exists(logPath))
+            if (!Directory.Exists(path: logPath))
                 return;
 
-            var now = DateTime.Now;
-            var files = Directory.GetFiles(logPath, "logs-*.txt");
-
-            foreach (var file in files)
-            {
-                var fileInfo = new FileInfo(file);
-                var age = (now - fileInfo.LastWriteTime).Days;
-
-                if (age > _maxOldlogAge)
-                    File.Delete(file);
-            }
+            foreach (var file in Directory.GetFiles(path: logPath, searchPattern: "logs-*.txt"))
+                if (
+                    (DateTime.Now - new FileInfo(fileName: file).LastWriteTime).Days > _maxOldlogAge
+                )
+                    File.Delete(path: file);
         }
         catch { }
     }
 
     /// <summary>Logs an informational message</summary>
     /// <param name="message">Message to log</param>
-    public void LogInformation(string message) => Log(message, LogLevel.Information);
+    public void LogInformation(string message) =>
+        Log(message: message, level: LogLevel.Information);
 
     /// <summary>Logs a warning message</summary>
     /// <param name="message">Message to log</param>
-    public void LogWarning(string message) => Log(message, LogLevel.Warning);
+    public void LogWarning(string message) => Log(message: message, level: LogLevel.Warning);
 
     /// <summary>Logs an error message</summary>
     /// <param name="message">Message to log</param>
-    public void LogError(string message) => Log(message, LogLevel.Error);
+    public void LogError(string message) => Log(message: message, level: LogLevel.Error);
 
     /// <summary>Logs an exception as error with optional stack trace</summary>
     /// <param name="exception">Exception to log</param>
     public void LogError(Exception exception) =>
-        LogError(exception.GetExceptionDetails(includeStackTrace: _includeStackTrace));
+        LogError(message: exception.GetExceptionDetails(includeStackTrace: _includeStackTrace));
 
     /// <summary>Logs an exception as warning with optional stack trace</summary>
     /// <param name="exception">Exception to log</param>
     public void LogWarning(Exception exception) =>
-        LogWarning(exception.GetExceptionDetails(includeStackTrace: _includeStackTrace));
+        LogWarning(message: exception.GetExceptionDetails(includeStackTrace: _includeStackTrace));
 
     /// <summary>Logs an exception as information with optional stack trace</summary>
     /// <param name="exception">Exception to log</param>
     public void LogInformation(Exception exception) =>
-        LogInformation(exception.GetExceptionDetails(includeStackTrace: _includeStackTrace));
+        LogInformation(
+            message: exception.GetExceptionDetails(includeStackTrace: _includeStackTrace)
+        );
 
     /// <summary>Core logging implementation</summary>
     /// <param name="message">Message to log</param>
@@ -201,14 +203,10 @@ public sealed class SystemLogging : IDisposable
             return;
 
         if (_enableOsLogging)
-        {
-            LogToOperatingSystem(message, level);
-        }
+            LogToOperatingSystem(message: message, level: level);
 
         if (_enableFileLogging)
-        {
-            LogToFile(message, level);
-        }
+            LogToFile(message: message, level: level);
     }
 
     /// <summary>Routes logging to appropriate OS logging system</summary>
@@ -216,20 +214,17 @@ public sealed class SystemLogging : IDisposable
     /// <param name="level">Log level</param>
     private void LogToOperatingSystem(string message, LogLevel level)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            LogToWindowsEvent(message, level);
-        }
+        if (RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Windows))
+            LogToWindowsEvent(message: message, level: level);
         else
-        {
-            LogToSyslog(message, level);
-        }
+            LogToSyslog(message: message, level: level);
     }
 
+#pragma warning disable CA1822 // Mark members as static
     /// <summary>Logs to Windows Event Log</summary>
     /// <param name="message">Message to log</param>
     /// <param name="level">Log level</param>
-    private static void LogToWindowsEvent(string message, LogLevel level)
+    private void LogToWindowsEvent(string message, LogLevel level)
     {
 #if WINDOWS
         if (_windowsEventLog is null)
@@ -242,9 +237,10 @@ public sealed class SystemLogging : IDisposable
             _ => EventLogEntryType.Information
         };
 
-        _windowsEventLog.WriteEntry(message, eventLogEntryType);
+        _windowsEventLog.WriteEntry(message: message, type: eventLogEntryType);
 #endif
     }
+#pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
     /// Logs to Syslog daemon on Unix-like systems
@@ -258,24 +254,18 @@ public sealed class SystemLogging : IDisposable
     /// <seealso href="https://tools.ietf.org/html/rfc3164">RFC 3164 - The BSD syslog Protocol</seealso>
     private void LogToSyslog(string message, LogLevel level)
     {
-        var facility = 1;
-        var priority = level switch
-        {
-            LogLevel.Error => 3,
-            LogLevel.Warning => 4,
-            _ => 6
-        };
-
-        var timestamp = DateTime.Now.ToString("MMM dd HH:mm:ss");
-        var hostname = Environment.MachineName;
-        var syslogMessage =
-            $"<{facility * 8 + priority}>{timestamp} {hostname} {_source}: {message}";
-
         try
         {
             using var client = new System.Net.Sockets.UdpClient();
-            var bytes = Encoding.UTF8.GetBytes(syslogMessage);
-            client.Send(bytes, bytes.Length, "localhost", 514);
+            var bytes = Encoding.UTF8.GetBytes(
+                s: $"<{1 * 8 + level switch
+            {
+                LogLevel.Error => 3,
+                LogLevel.Warning => 4,
+                _ => 6
+            }}>{DateTime.Now:MMM dd HH:mm:ss} {Environment.MachineName} {_source}: {message}"
+            );
+            client.Send(dgram: bytes, bytes: bytes.Length, hostname: "localhost", port: 514);
         }
         catch { }
     }
@@ -292,14 +282,15 @@ public sealed class SystemLogging : IDisposable
     private void LogToFile(string message, LogLevel level)
     {
         var logPath = GetLogPath();
-        var logFile = Path.Combine(logPath, $"logs-{DateTime.Now:yyyyMMdd}.txt");
-        var logMessage =
-            $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}{Environment.NewLine}";
 
         try
         {
-            Directory.CreateDirectory(logPath);
-            File.AppendAllText(logFile, logMessage);
+            Directory.CreateDirectory(path: logPath);
+            File.AppendAllText(
+                path: Path.Combine(path1: logPath, path2: $"logs-{DateTime.Now:yyyyMMdd}.txt"),
+                contents: (string?)
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}{Environment.NewLine}"
+            );
         }
         catch { }
     }

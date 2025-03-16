@@ -1,0 +1,103 @@
+[2025-03-17 00:00:23] [Information] GET /swagger/index.html completed in 268.5354ms with status 200
+[2025-03-17 00:00:23] [Information] GET /swagger/index.js completed in 11.4331ms with status 200
+[2025-03-17 00:00:23] [Information] GET /swagger/Main/swagger.json completed in 149.1307ms with status 200
+[2025-03-17 00:00:52] [Information] GET /api/Tester/Add completed in 34.6811ms with status 500
+[2025-03-17 00:05:19] [Information] GET /swagger/index.html completed in 198.3081ms with status 200
+[2025-03-17 00:05:19] [Information] GET /swagger/index.js completed in 8.6037ms with status 200
+[2025-03-17 00:05:19] [Information] GET /swagger/Main/swagger.json completed in 136.446ms with status 200
+[2025-03-17 00:06:48] [Information] GET /swagger/index.html completed in 194.8004ms with status 200
+[2025-03-17 00:06:48] [Information] GET /swagger/index.js completed in 2.0208ms with status 200
+[2025-03-17 00:06:49] [Information] GET /swagger/Main/swagger.json completed in 123.3744ms with status 200
+[2025-03-17 00:06:53] [Error] GET /api/Tester/Add failed
+[2025-03-17 00:06:53] [Error] Type: System.InvalidCastException
+Message: Unable to cast object of type 'Newtonsoft.Json.Linq.JArray' to type 'System.String[]'.
+StackTrace:
+   --> IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ApiKeyAuthenticationMiddleware.cs:line 37
+   --> Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> IDC.Template.Utilities.Middlewares.SecurityHeadersMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/SecurityHeadersMiddleware.cs:line 57
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 51
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 104
+   --> IDC.Template.Utilities.Middlewares.RateLimitingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RateLimitingMiddleware.cs:line 59
+   --> IDC.Template.Utilities.Middlewares.RequestLoggingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RequestLoggingMiddleware.cs:line 48
+
+[2025-03-17 00:08:42] [Information] GET /swagger/index.html completed in 207.1164ms with status 200
+[2025-03-17 00:08:42] [Information] GET /swagger/index.js completed in 5.4096ms with status 200
+[2025-03-17 00:08:43] [Information] GET /swagger/Main/swagger.json completed in 135.0234ms with status 200
+[2025-03-17 00:09:02] [Error] GET /api/Tester/Add failed
+[2025-03-17 00:09:02] [Error] Type: System.InvalidCastException
+Message: Unable to cast object of type 'IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware' to type 'Microsoft.AspNetCore.Mvc.Filters.IFilterMetadata'.
+StackTrace:
+   --> Microsoft.AspNetCore.Mvc.TypeFilterAttribute.CreateInstance(IServiceProvider serviceProvider)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.ProvideFilter(FilterProviderContext context, FilterItem filterItem)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.OnProvidersExecuting(FilterProviderContext context)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.CreateUncachedFiltersCore(IFilterProvider[] filterProviders, ActionContext actionContext, List`1 filterItems)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.GetAllFilters(IFilterProvider[] filterProviders, ActionContext actionContext)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvokerCache.GetCachedResult(ControllerContext controllerContext)
+   --> Microsoft.AspNetCore.Mvc.Routing.ControllerRequestDelegateFactory.<>c__DisplayClass12_0.<CreateRequestDelegate>b__0(HttpContext context)
+   --> Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   --> Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   --> Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   --> IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ApiKeyAuthenticationMiddleware.cs:line 63
+   --> Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> IDC.Template.Utilities.Middlewares.SecurityHeadersMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/SecurityHeadersMiddleware.cs:line 57
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 51
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 104
+   --> IDC.Template.Utilities.Middlewares.RateLimitingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RateLimitingMiddleware.cs:line 59
+   --> IDC.Template.Utilities.Middlewares.RequestLoggingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RequestLoggingMiddleware.cs:line 48
+
+[2025-03-17 00:09:38] [Error] GET /api/Tester/Add failed
+[2025-03-17 00:09:38] [Error] Type: System.InvalidCastException
+Message: Unable to cast object of type 'IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware' to type 'Microsoft.AspNetCore.Mvc.Filters.IFilterMetadata'.
+StackTrace:
+   --> Microsoft.AspNetCore.Mvc.TypeFilterAttribute.CreateInstance(IServiceProvider serviceProvider)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.ProvideFilter(FilterProviderContext context, FilterItem filterItem)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.OnProvidersExecuting(FilterProviderContext context)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.CreateUncachedFiltersCore(IFilterProvider[] filterProviders, ActionContext actionContext, List`1 filterItems)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.GetAllFilters(IFilterProvider[] filterProviders, ActionContext actionContext)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvokerCache.GetCachedResult(ControllerContext controllerContext)
+   --> Microsoft.AspNetCore.Mvc.Routing.ControllerRequestDelegateFactory.<>c__DisplayClass12_0.<CreateRequestDelegate>b__0(HttpContext context)
+   --> Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   --> Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   --> Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   --> IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ApiKeyAuthenticationMiddleware.cs:line 63
+   --> Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> IDC.Template.Utilities.Middlewares.SecurityHeadersMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/SecurityHeadersMiddleware.cs:line 57
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 51
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 104
+   --> IDC.Template.Utilities.Middlewares.RateLimitingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RateLimitingMiddleware.cs:line 59
+   --> IDC.Template.Utilities.Middlewares.RequestLoggingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RequestLoggingMiddleware.cs:line 48
+
+[2025-03-17 00:10:36] [Information] GET /swagger/index.html completed in 200.0104ms with status 200
+[2025-03-17 00:10:36] [Information] GET /swagger/index.js completed in 3.7817ms with status 200
+[2025-03-17 00:10:36] [Information] GET /swagger/Main/swagger.json completed in 107.82ms with status 200
+[2025-03-17 00:11:05] [Error] GET /api/Tester/Add failed
+[2025-03-17 00:11:05] [Error] Type: System.InvalidCastException
+Message: Unable to cast object of type 'IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware' to type 'Microsoft.AspNetCore.Mvc.Filters.IFilterMetadata'.
+StackTrace:
+   --> Microsoft.AspNetCore.Mvc.TypeFilterAttribute.CreateInstance(IServiceProvider serviceProvider)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.ProvideFilter(FilterProviderContext context, FilterItem filterItem)
+   --> Microsoft.AspNetCore.Mvc.Filters.DefaultFilterProvider.OnProvidersExecuting(FilterProviderContext context)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.CreateUncachedFiltersCore(IFilterProvider[] filterProviders, ActionContext actionContext, List`1 filterItems)
+   --> Microsoft.AspNetCore.Mvc.Filters.FilterFactory.GetAllFilters(IFilterProvider[] filterProviders, ActionContext actionContext)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvokerCache.GetCachedResult(ControllerContext controllerContext)
+   --> Microsoft.AspNetCore.Mvc.Routing.ControllerRequestDelegateFactory.<>c__DisplayClass12_0.<CreateRequestDelegate>b__0(HttpContext context)
+   --> Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   --> Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   --> Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   --> IDC.Template.Utilities.Middlewares.ApiKeyAuthenticationMiddleware.InvokeAsync(HttpContext context, RequestDelegate next) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ApiKeyAuthenticationMiddleware.cs:line 63
+   --> Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.InterfaceMiddlewareBinder.<>c__DisplayClass2_0.<<CreateMiddleware>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> IDC.Template.Utilities.Middlewares.SecurityHeadersMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/SecurityHeadersMiddleware.cs:line 57
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 51
+   --> IDC.Template.Utilities.Middlewares.ResponseCompressionMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/ResponseCompressionMiddleware.cs:line 104
+   --> IDC.Template.Utilities.Middlewares.RateLimitingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RateLimitingMiddleware.cs:line 59
+   --> IDC.Template.Utilities.Middlewares.RequestLoggingMiddleware.InvokeAsync(HttpContext context) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Template/Utilities/Middlewares/RequestLoggingMiddleware.cs:line 48
+
+[2025-03-17 00:13:14] [Information] GET /swagger/index.html completed in 216.0041ms with status 200
+[2025-03-17 00:13:14] [Information] GET /swagger/index.js completed in 2.1115ms with status 200
+[2025-03-17 00:13:14] [Information] GET /swagger/Main/swagger.json completed in 113.6233ms with status 200
+[2025-03-17 00:13:23] [Information] GET /api/Tester/Add completed in 4591.4712ms with status 200
+[2025-03-17 00:14:48] [Information] GET /api/Tester/Add completed in 11741.2959ms with status 401

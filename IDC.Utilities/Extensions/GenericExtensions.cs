@@ -41,9 +41,8 @@ public static class GenericExtensions
         where T : class
     {
         if (value is not null)
-        {
-            action(value);
-        }
+            action(obj: value);
+
         return value;
     }
 
@@ -62,7 +61,7 @@ public static class GenericExtensions
     /// </code>
     /// </example>
     public static TOutput Map<TInput, TOutput>(this TInput value, Func<TInput, TOutput> mapper) =>
-        mapper(value);
+        mapper(arg: value);
 
     /// <summary>
     /// Converts a value to a different type using a try-parse pattern.
@@ -111,9 +110,9 @@ public static class GenericExtensions
         {
             null => defaultValue,
             int i => i,
-            string s => int.TryParse(s, out int result) ? result : defaultValue,
-            double d => Convert.ToInt32(d),
-            decimal m => Convert.ToInt32(m),
+            string s => int.TryParse(s: s, result: out int result) ? result : defaultValue,
+            double d => Convert.ToInt32(value: d),
+            decimal m => Convert.ToInt32(value: m),
             bool b => b ? 1 : 0,
             _ => defaultValue
         };
@@ -158,7 +157,7 @@ public static class GenericExtensions
         {
             null => defaultValue,
             bool b => b,
-            string s => bool.TryParse(s, out bool result) ? result : defaultValue,
+            string s => bool.TryParse(value: s, result: out bool result) ? result : defaultValue,
             int i => i != 0,
             _ => defaultValue
         };
@@ -182,9 +181,9 @@ public static class GenericExtensions
         {
             null => defaultValue,
             double d => d,
-            string s => double.TryParse(s, out double result) ? result : defaultValue,
-            int i => Convert.ToDouble(i),
-            decimal m => Convert.ToDouble(m),
+            string s => double.TryParse(s: s, result: out double result) ? result : defaultValue,
+            int i => Convert.ToDouble(value: i),
+            decimal m => Convert.ToDouble(value: m),
             bool b => b ? 1.0 : 0.0,
             _ => defaultValue
         };
@@ -208,9 +207,9 @@ public static class GenericExtensions
         {
             null => defaultValue,
             decimal m => m,
-            string s => decimal.TryParse(s, out decimal result) ? result : defaultValue,
-            int i => Convert.ToDecimal(i),
-            double d => Convert.ToDecimal(d),
+            string s => decimal.TryParse(s: s, result: out decimal result) ? result : defaultValue,
+            int i => Convert.ToDecimal(value: i),
+            double d => Convert.ToDecimal(value: d),
             bool b => b ? 1m : 0m,
             _ => defaultValue
         };
@@ -233,8 +232,9 @@ public static class GenericExtensions
         {
             null => defaultValue,
             DateTime dt => dt,
-            string s => DateTime.TryParse(s, out DateTime result) ? result : defaultValue,
-            long l => DateTime.FromFileTime(l),
+            string s
+                => DateTime.TryParse(s: s, result: out DateTime result) ? result : defaultValue,
+            long l => DateTime.FromFileTime(fileTime: l),
             _ => defaultValue
         };
 
@@ -257,10 +257,10 @@ public static class GenericExtensions
         {
             null => defaultValue,
             long l => l,
-            string s => long.TryParse(s, out long result) ? result : defaultValue,
-            int i => Convert.ToInt64(i),
-            double d => Convert.ToInt64(d),
-            decimal m => Convert.ToInt64(m),
+            string s => long.TryParse(s: s, result: out long result) ? result : defaultValue,
+            int i => Convert.ToInt64(value: i),
+            double d => Convert.ToInt64(value: d),
+            decimal m => Convert.ToInt64(value: m),
             bool b => b ? 1L : 0L,
             _ => defaultValue
         };
@@ -311,10 +311,10 @@ public static class GenericExtensions
         {
             null => defaultValue,
             short s => s,
-            string str => short.TryParse(str, out short result) ? result : defaultValue,
-            int i => Convert.ToInt16(i),
-            double d => Convert.ToInt16(d),
-            decimal m => Convert.ToInt16(m),
+            string str => short.TryParse(s: str, result: out short result) ? result : defaultValue,
+            int i => Convert.ToInt16(value: i),
+            double d => Convert.ToInt16(value: d),
+            decimal m => Convert.ToInt16(value: m),
             bool b => (short)(b ? 1 : 0),
             _ => defaultValue
         };
@@ -364,7 +364,7 @@ public static class GenericExtensions
         {
             null => defaultValue,
             Guid g => g,
-            string s => Guid.TryParse(s, out Guid result) ? result : defaultValue,
+            string s => Guid.TryParse(input: s, result: out Guid result) ? result : defaultValue,
             _ => defaultValue
         };
 
@@ -387,10 +387,11 @@ public static class GenericExtensions
         {
             null => defaultValue,
             TimeSpan ts => ts,
-            string s => TimeSpan.TryParse(s, out TimeSpan result) ? result : defaultValue,
-            long l => TimeSpan.FromTicks(l),
-            int i => TimeSpan.FromSeconds(i),
-            double d => TimeSpan.FromSeconds(d),
+            string s
+                => TimeSpan.TryParse(s: s, result: out TimeSpan result) ? result : defaultValue,
+            long l => TimeSpan.FromTicks(value: l),
+            int i => TimeSpan.FromSeconds(value: i),
+            double d => TimeSpan.FromSeconds(value: d),
             _ => defaultValue
         };
 }

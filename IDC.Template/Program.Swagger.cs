@@ -15,6 +15,35 @@ internal partial class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
+            options.AddSecurityDefinition(
+                "ApiKey",
+                new OpenApiSecurityScheme
+                {
+                    Description = "API Key authentication using the 'X-API-Key' header",
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = "X-API-Key",
+                    In = ParameterLocation.Header,
+                    Scheme = "ApiKeyScheme"
+                }
+            );
+
+            options.AddSecurityRequirement(
+                new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "ApiKey"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                }
+            );
+
             options.SwaggerDoc(
                 name: "Main",
                 info: _appConfigs

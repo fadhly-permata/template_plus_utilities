@@ -1,3 +1,4 @@
+using IDC.Template.Utilities.Middlewares;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,12 +7,6 @@ namespace IDC.Template.Controllers
     /// <summary>
     /// Controller for testing and demonstration purposes
     /// </summary>
-    /// <remarks>
-    /// Provides simple API endpoints to demonstrate basic functionality
-    ///
-    /// Example usage:
-    /// GET /api/Tester/Add - Performs basic arithmetic operations
-    /// </remarks>
     [Route("api/[controller]")]
     [ApiController]
     public class TesterController : ControllerBase

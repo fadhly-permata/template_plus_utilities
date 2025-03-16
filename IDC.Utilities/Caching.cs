@@ -3,57 +3,70 @@ using System.Collections.Concurrent;
 namespace IDC.Utilities;
 
 /// <summary>
-/// Provides thread-safe in-memory caching functionality with expiration support.
+/// Provides a thread-safe in-memory caching mechanism with expiration support.
 /// </summary>
 /// <remarks>
-/// Implements a simple memory cache with CRUD operations and automatic cleanup of expired items.
-/// </remarks>
-/// <example>
+/// This class implements a simple caching system using a <see cref="ConcurrentDictionary{TKey,TValue}"/>.
+/// It supports operations like setting, getting, updating, and removing cached items.
+/// Each cached item has an expiration time, and a cleanup timer removes expired items periodically.
+///
+/// Example usage:
 /// <code>
-/// var cache = new MemoryCaching();
-/// cache.Set(key: "user-123", value: userObject, expirationMinutes: 30);
-/// var user = cache.Get&lt;UserModel&gt;(key: "user-123");
+/// var cache = new Caching();
+/// cache.Set("key1", "value1");
+/// var value = cache.Get&lt;string&gt;("key1");
 /// </code>
-/// </example>
+/// </remarks>
 public class Caching : IDisposable
 {
     private readonly ConcurrentDictionary<string, CacheItem> _cache = [];
     private readonly Timer _cleanupTimer;
+    private readonly int _defaultExpirationMinutes;
     private bool _disposed;
 
     /// <summary>
-    /// Throws ObjectDisposedException if the cache has been disposed.
+    /// Throws an <see cref="ObjectDisposedException"/> if the object has been disposed.
     /// </summary>
-    private void ThrowIfDisposed()
-    {
+    private void ThrowIfDisposed() =>
         ObjectDisposedException.ThrowIf(condition: _disposed, instance: nameof(Caching));
-    }
 
     /// <summary>
-    /// Disposes the cache and cleanup timer.
+    /// Disposes of the Caching instance, releasing all resources.
     /// </summary>
     public void Dispose()
     {
-        if (!_disposed)
-        {
-            _cleanupTimer.Dispose();
-            _cache.Clear();
-            _disposed = true;
-        }
+        if (_disposed)
+            return;
+
+        _cleanupTimer.Dispose();
+        _cache.Clear();
+        _disposed = true;
         GC.SuppressFinalize(obj: this);
     }
 
+    /// <summary>
+    /// Represents an item in the cache with its value and expiration time.
+    /// </summary>
     private class CacheItem
     {
+        /// <summary>
+        /// Gets or sets the cached value.
+        /// </summary>
         public object? Value { get; set; }
+
+        /// <summary>
+        /// Gets or sets the expiration time of the cached item.
+        /// </summary>
         public DateTime ExpiresAt { get; set; }
     }
 
     /// <summary>
-    /// Initializes a new instance of MemoryCaching with automatic cleanup.
+    /// Initializes a new instance of the <see cref="Caching"/> class.
     /// </summary>
-    public Caching()
+    /// <param name="defaultExpirationMinutes">The default expiration time in minutes for cached items.</param>
+    public Caching(int defaultExpirationMinutes = 30)
     {
+        _defaultExpirationMinutes = defaultExpirationMinutes;
         _cleanupTimer = new Timer(
             callback: _ => Cleanup(),
             state: null,
@@ -63,65 +76,72 @@ public class Caching : IDisposable
     }
 
     /// <summary>
-    /// Sets a value in the cache with optional expiration.
+    /// Sets a value in the cache with the specified key and optional expiration time.
     /// </summary>
-    /// <param name="key">The cache key.</param>
+    /// <param name="key">The key to associate with the cached item.</param>
     /// <param name="value">The value to cache.</param>
-    /// <param name="expirationMinutes">Optional expiration time in minutes.</param>
-    /// <returns>True if set successfully, false otherwise.</returns>
-    public bool Set(string key, object? value, int expirationMinutes = 30)
+    /// <param name="expirationMinutes">Optional. The expiration time in minutes for this specific item.</param>
+    /// <returns>True if the item was successfully added to the cache; otherwise, false.</returns>
+    public bool Set(string key, object? value, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
-        var item = new CacheItem
-        {
-            Value = value,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes)
-        };
-        return _cache.TryAdd(key: key, value: item);
+        return _cache.TryAdd(
+            key: key,
+            value: new CacheItem
+            {
+                Value = value,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(
+                    value: expirationMinutes ?? _defaultExpirationMinutes
+                )
+            }
+        );
     }
 
     /// <summary>
-    /// Gets a value from the cache.
+    /// Retrieves a value from the cache by its key.
     /// </summary>
-    /// <typeparam name="T">The type to convert the value to.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <returns>The cached value or default if not found or expired.</returns>
-    public T? Get<T>(string key)
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key of the item to retrieve.</param>
+    /// <param name="increaseExpiration">If true, resets the item's expiration time when retrieved.</param>
+    /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
+    /// <returns>The cached value if found and not expired; otherwise, default(T).</returns>
+    public T? Get<T>(string key, bool increaseExpiration = false, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
         {
-            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
+            if (increaseExpiration)
+                item.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                    value: expirationMinutes ?? _defaultExpirationMinutes
+                );
+
             return (T?)item.Value;
         }
         return default;
     }
 
     /// <summary>
-    /// Gets a value from the cache with a default value and optional save if not found.
+    /// Retrieves a value from the cache by its key, or returns a default value if not found.
     /// </summary>
-    /// <typeparam name="T">The type to convert the value to.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <param name="defaultValue">The default value to return and optionally save if the key doesn't exist.</param>
-    /// <param name="saveIfNotFound">When true, saves the default value to cache if key not found.</param>
-    /// <param name="expirationMinutes">Optional expiration time in minutes when saving default value.</param>
-    /// <returns>The cached value or default value if not found.</returns>
-    /// <example>
-    /// <code>
-    /// var value = cache.Get(key: "settings", defaultValue: new Settings(), saveIfNotFound: true);
-    /// </code>
-    /// </example>
+    /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+    /// <param name="key">The key of the item to retrieve.</param>
+    /// <param name="defaultValue">The default value to return if the key is not found in the cache.</param>
+    /// <param name="saveIfNotFound">If true, saves the default value to the cache when the key is not found.</param>
+    /// <param name="expirationMinutes">Optional. The expiration time in minutes for the item if saved.</param>
+    /// <returns>The cached value if found and not expired; otherwise, the default value.</returns>
     public T Get<T>(
         string key,
         T defaultValue,
         bool saveIfNotFound = false,
-        int expirationMinutes = 30
+        int? expirationMinutes = null
     )
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
         {
-            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes);
+            item.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                value: expirationMinutes ?? _defaultExpirationMinutes
+            );
             return item.Value is T value ? value : defaultValue;
         }
 
@@ -132,31 +152,36 @@ public class Caching : IDisposable
     }
 
     /// <summary>
-    /// Updates a value in the cache.
+    /// Updates an existing item in the cache.
     /// </summary>
-    /// <param name="key">The cache key.</param>
-    /// <param name="value">The new value.</param>
-    /// <param name="expirationMinutes">Optional new expiration time in minutes.</param>
-    /// <returns>True if updated successfully, false if key not found.</returns>
-    public bool Update(string key, object? value, int expirationMinutes = 30)
+    /// <param name="key">The key of the item to update.</param>
+    /// <param name="value">The new value to set.</param>
+    /// <param name="expirationMinutes">Optional. The new expiration time in minutes for the updated item.</param>
+    /// <returns>True if the item was successfully updated; otherwise, false.</returns>
+    public bool Update(string key, object? value, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
-        var item = new CacheItem
-        {
-            Value = value,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes)
-        };
         if (!_cache.TryGetValue(key: key, value: out var existingItem))
             return false;
 
-        return _cache.TryUpdate(key: key, newValue: item, comparisonValue: existingItem);
+        return _cache.TryUpdate(
+            key: key,
+            newValue: new CacheItem
+            {
+                Value = value,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(
+                    value: expirationMinutes ?? _defaultExpirationMinutes
+                )
+            },
+            comparisonValue: existingItem
+        );
     }
 
     /// <summary>
-    /// Removes a value from the cache.
+    /// Removes an item from the cache by its key.
     /// </summary>
-    /// <param name="key">The cache key to remove.</param>
-    /// <returns>True if removed successfully, false if key not found.</returns>
+    /// <param name="key">The key of the item to remove.</param>
+    /// <returns>True if the item was successfully removed; otherwise, false.</returns>
     public bool Remove(string key)
     {
         ThrowIfDisposed();
@@ -164,115 +189,106 @@ public class Caching : IDisposable
     }
 
     /// <summary>
-    /// Checks if a key exists in the cache and is not expired.
+    /// Checks if an item exists in the cache and is not expired.
     /// </summary>
-    /// <param name="key">The cache key to check.</param>
-    /// <returns>True if the key exists and is not expired, false otherwise.</returns>
-    public bool Exists(string key)
+    /// <param name="key">The key to check.</param>
+    /// <param name="increaseExpiration">If true, resets the item's expiration time when checked.</param>
+    /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
+    /// <returns>True if the item exists and is not expired; otherwise, false.</returns>
+    public bool Exists(string key, bool increaseExpiration = false, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
         {
-            item.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
+            if (increaseExpiration)
+                item.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                    value: expirationMinutes ?? _defaultExpirationMinutes
+                );
+
             return true;
         }
         return false;
     }
 
     /// <summary>
-    /// Removes all expired items from the cache.
+    /// Removes expired items from the cache.
     /// </summary>
+    /// <remarks>
+    /// This method is called periodically by the cleanup timer to remove expired items from the cache.
+    /// </remarks>
     private void Cleanup()
     {
-        var now = DateTime.UtcNow;
         foreach (var key in _cache.Keys)
-        {
-            if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt <= now)
+            if (
+                _cache.TryGetValue(key: key, value: out var item)
+                && item.ExpiresAt <= DateTime.UtcNow
+            )
                 _cache.TryRemove(key: key, value: out _);
-        }
     }
 
     /// <summary>
-    /// Updates an existing value or inserts a new value in the cache.
+    /// Adds a new item to the cache or updates an existing one.
     /// </summary>
-    /// <param name="key">The cache key.</param>
-    /// <param name="value">The value to upsert.</param>
-    /// <param name="expirationMinutes">Optional expiration time in minutes.</param>
-    /// <returns>True if the operation was successful.</returns>
-    /// <remarks>
-    /// This method will either update an existing key or add a new key if it doesn't exist.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// cache.Upsert(key: "user-123", value: userObject, expirationMinutes: 30);
-    /// </code>
-    /// </example>
-    public bool Upsert(string key, object? value, int expirationMinutes = 30)
+    /// <param name="key">The key to associate with the cached item.</param>
+    /// <param name="value">The value to cache.</param>
+    /// <param name="expirationMinutes">Optional. The expiration time in minutes for this specific item.</param>
+    /// <returns>Always returns true.</returns>
+    public bool Upsert(string key, object? value, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
         var item = new CacheItem
         {
             Value = value,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes)
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+                value: expirationMinutes ?? _defaultExpirationMinutes
+            )
         };
         _cache.AddOrUpdate(key: key, addValue: item, updateValueFactory: (_, _) => item);
         return true;
     }
 
     /// <summary>
-    /// Retrieves all non-expired key-value pairs from the cache.
+    /// Retrieves all non-expired items from the cache.
     /// </summary>
-    /// <returns>Dictionary containing all valid cache entries where key is the cache key and value is the cached value.</returns>
-    /// <remarks>
-    /// Only returns items that have not expired based on their ExpiresAt timestamp.
-    /// The returned dictionary contains the raw cached values without their expiration metadata.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var allCachedItems = cache.GetAll();
-    /// foreach(var (key, value) in allCachedItems) {
-    ///     Console.WriteLine($"{key}: {value}");
-    /// }
-    /// </code>
-    /// </example>
-    /// <exception cref="ObjectDisposedException">Thrown when the cache has been disposed.</exception>
-    public Dictionary<string, object?> GetAll()
+    /// <param name="increaseExpiration">If true, resets the expiration time for all retrieved items.</param>
+    /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
+    /// <returns>A dictionary containing all non-expired cached items.</returns>
+    public Dictionary<string, object?> GetAll(
+        bool increaseExpiration = false,
+        int? expirationMinutes = null
+    )
     {
         ThrowIfDisposed();
-        var now = DateTime.UtcNow;
+
         return _cache
-            .Where(x => x.Value.ExpiresAt > now)
-            .Select(x =>
+            .Where(predicate: x => x.Value.ExpiresAt > DateTime.UtcNow)
+            .Select(selector: x =>
             {
-                x.Value.ExpiresAt = DateTime.UtcNow.AddMinutes(value: 30);
+                if (increaseExpiration)
+                    x.Value.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                        value: expirationMinutes ?? _defaultExpirationMinutes
+                    );
+
                 return x;
             })
-            .ToDictionary(x => x.Key, x => x.Value.Value);
+            .ToDictionary(keySelector: x => x.Key, elementSelector: x => x.Value.Value);
     }
 
     /// <summary>
-    /// Gets a value from cache or sets it if not found.
+    /// Retrieves a value from the cache or sets it if not found.
     /// </summary>
-    /// <typeparam name="T">The type to convert the value to.</typeparam>
-    /// <param name="key">The cache key.</param>
-    /// <param name="value">The value to cache if key not found.</param>
-    /// <param name="expirationMinutes">Optional expiration time in minutes.</param>
-    /// <returns>The cached value or the newly set value.</returns>
-    /// <remarks>
-    /// This method combines get and set operations atomically. If the key exists and hasn't expired,
-    /// returns the existing value. Otherwise, sets the new value and returns it.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// var user = cache.GetOrSet(
-    ///     key: "user-123",
-    ///     value: new User { Id = 123, Name = "John" },
-    ///     expirationMinutes: 30
-    /// );
-    /// </code>
-    /// </example>
-    /// <exception cref="ObjectDisposedException">Thrown when the cache has been disposed.</exception>
-    public T GetOrSet<T>(string key, T value, int expirationMinutes = 30)
+    /// <typeparam name="T">The type of the value to retrieve or set.</typeparam>
+    /// <param name="key">The key to associate with the cached item.</param>
+    /// <param name="value">The value to cache if the key is not found.</param>
+    /// <param name="increaseExpiration">If true, resets the expiration time when the item is retrieved.</param>
+    /// <param name="expirationMinutes">Optional. The expiration time in minutes for this specific item.</param>
+    /// <returns>The cached value if found, or the provided value if not found.</returns>
+    public T GetOrSet<T>(
+        string key,
+        T value,
+        bool increaseExpiration = false,
+        int? expirationMinutes = null
+    )
     {
         ThrowIfDisposed();
 
@@ -281,14 +297,20 @@ public class Caching : IDisposable
             && existing.ExpiresAt > DateTime.UtcNow
         )
         {
-            existing.ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes);
+            if (increaseExpiration)
+                existing.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                    value: expirationMinutes ?? _defaultExpirationMinutes
+                );
+
             return existing.Value is T typedValue ? typedValue : value;
         }
 
         var item = new CacheItem
         {
             Value = value,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(value: expirationMinutes)
+            ExpiresAt = DateTime.UtcNow.AddMinutes(
+                value: expirationMinutes ?? _defaultExpirationMinutes
+            )
         };
 
         _cache.AddOrUpdate(key: key, addValue: item, updateValueFactory: (_, _) => item);

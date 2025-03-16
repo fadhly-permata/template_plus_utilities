@@ -9,46 +9,6 @@ namespace IDC.Utilities.Validations;
 public static partial class StringValidations
 {
     /// <summary>
-    /// Generates a compiled regular expression for validating email addresses.
-    /// </summary>
-    /// <remarks>
-    /// Pattern explanation:
-    /// - ^[a-zA-Z0-9._%+-]+ : Start with one or more letters, numbers, or allowed special characters
-    /// - @ : Followed by @ symbol
-    /// - [a-zA-Z0-9.-]+ : Domain name with letters, numbers, dots or hyphens
-    /// - \. : Dot separator
-    /// - [a-zA-Z]{2,}$ : TLD with 2 or more letters
-    /// </remarks>
-    /// <returns>Compiled Regex for email validation</returns>
-    [GeneratedRegex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled)]
-    private static partial Regex REEmailAddressValidation();
-
-    /// <summary>
-    /// Generates a compiled regular expression for validating alphanumeric strings.
-    /// </summary>
-    /// <remarks>
-    /// Pattern explanation:
-    /// - ^[a-zA-Z0-9]*$ : Match string containing only letters and numbers from start to end
-    /// </remarks>
-    /// <returns>Compiled Regex for alphanumeric validation</returns>
-    [GeneratedRegex("^[a-zA-Z0-9]*$", RegexOptions.Compiled)]
-    private static partial Regex REAlphanumerValidation();
-
-    /// <summary>
-    /// Generates a compiled regular expression for validating phone numbers.
-    /// </summary>
-    /// <remarks>
-    /// Pattern explanation:
-    /// - ^\+? : Optional + at start
-    /// - (\d[\d-. ]+)? : Optional digits with separators
-    /// - (\([\d-. ]+\))? : Optional parenthesized part
-    /// - [\d-. ]+\d$ : Digits with separators, ending with digit
-    /// </remarks>
-    /// <returns>Compiled Regex for phone number validation</returns>
-    [GeneratedRegex(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$", RegexOptions.Compiled)]
-    private static partial Regex REPhoneNumberValidation();
-
-    /// <summary>
     /// Validates if the string is a valid URL.
     /// </summary>
     /// <param name="value">The string to validate.</param>
@@ -60,8 +20,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidUrl(this string? value) =>
-        !string.IsNullOrWhiteSpace(value)
-        && Uri.TryCreate(value, UriKind.Absolute, out var uriResult)
+        !string.IsNullOrWhiteSpace(value: value)
+        && Uri.TryCreate(uriString: value, uriKind: UriKind.Absolute, result: out var uriResult)
         && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
     /// <summary>
@@ -76,7 +36,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidEmail(this string? value) =>
-        !string.IsNullOrWhiteSpace(value) && REEmailAddressValidation().IsMatch(value);
+        !string.IsNullOrWhiteSpace(value)
+        && RegexPatternCollections.EmailValidation().IsMatch(value);
 
     /// <summary>
     /// Validates if the string is a valid IPv4 address.
@@ -90,8 +51,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidIPv4(this string? value) =>
-        !string.IsNullOrWhiteSpace(value)
-        && IPAddress.TryParse(value, out var address)
+        !string.IsNullOrWhiteSpace(value: value)
+        && IPAddress.TryParse(ipString: value, address: out var address)
         && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
 
     /// <summary>
@@ -106,8 +67,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidIPv6(this string? value) =>
-        !string.IsNullOrWhiteSpace(value)
-        && IPAddress.TryParse(value, out var address)
+        !string.IsNullOrWhiteSpace(value: value)
+        && IPAddress.TryParse(ipString: value, address: out var address)
         && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6;
 
     /// <summary>
@@ -122,7 +83,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsAlphanumeric(this string? value) =>
-        !string.IsNullOrWhiteSpace(value) && REAlphanumerValidation().IsMatch(value);
+        !string.IsNullOrWhiteSpace(value)
+        && RegexPatternCollections.AlphanumericValidation().IsMatch(value);
 
     /// <summary>
     /// Validates if the string is a valid phone number.
@@ -136,7 +98,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidPhoneNumber(this string? value) =>
-        !string.IsNullOrWhiteSpace(value) && REPhoneNumberValidation().IsMatch(value);
+        !string.IsNullOrWhiteSpace(value)
+        && RegexPatternCollections.PhoneNumberValidation().IsMatch(value);
 
     /// <summary>
     /// Validates if the string is a valid date in the specified format.
@@ -151,13 +114,13 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsValidDate(this string? value, string format) =>
-        !string.IsNullOrWhiteSpace(value)
+        !string.IsNullOrWhiteSpace(value: value)
         && DateTime.TryParseExact(
-            value,
-            format,
-            System.Globalization.CultureInfo.InvariantCulture,
-            System.Globalization.DateTimeStyles.None,
-            out _
+            s: value,
+            format: format,
+            provider: System.Globalization.CultureInfo.InvariantCulture,
+            style: System.Globalization.DateTimeStyles.None,
+            result: out _
         );
 
     /// <summary>
@@ -173,7 +136,8 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool MatchesPattern(this string? value, string pattern) =>
-        !string.IsNullOrWhiteSpace(value) && Regex.IsMatch(value, pattern, RegexOptions.Compiled);
+        !string.IsNullOrWhiteSpace(value: value)
+        && Regex.IsMatch(input: value, pattern: pattern, options: RegexOptions.Compiled);
 
     /// <summary>
     /// Validates if the string contains only numeric characters.
@@ -187,7 +151,7 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool IsNumeric(this string? value) =>
-        !string.IsNullOrWhiteSpace(value) && value.All(char.IsDigit);
+        !string.IsNullOrWhiteSpace(value: value) && value.All(predicate: char.IsDigit);
 
     /// <summary>
     /// Validates if the string length is within the specified range.
@@ -203,5 +167,7 @@ public static partial class StringValidations
     /// </code>
     /// </example>
     public static bool HasValidLength(this string? value, int minLength, int maxLength) =>
-        !string.IsNullOrWhiteSpace(value) && value.Length >= minLength && value.Length <= maxLength;
+        !string.IsNullOrWhiteSpace(value: value)
+        && value.Length >= minLength
+        && value.Length <= maxLength;
 }

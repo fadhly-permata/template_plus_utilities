@@ -163,7 +163,7 @@ public static class JObjectExtensions
                 && result[kvp.Key] is JArray sourceArray
                 && kvp.Value is JArray otherArray
             )
-                result[kvp.Key] = new JArray(sourceArray.Union(second: otherArray));
+                result[kvp.Key] = new JArray(content: sourceArray.Union(second: otherArray));
             else
                 result[kvp.Key] = kvp.Value?.DeepClone();
         }
@@ -217,7 +217,7 @@ public static class JObjectExtensions
                 result.Add(
                     propertyName: kvp.Key,
                     value: new JArray(
-                        array.Select(selector: item =>
+                        content: array.Select(selector: item =>
                             item is JObject obj
                                 ? obj.PropRemove(predicate: predicate, recursive: true)
                                 : item.DeepClone()

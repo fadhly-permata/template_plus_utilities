@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using IDC.Utilities.Extensions;
 
 namespace IDC.Utilities.Models.Data;
@@ -168,41 +167,26 @@ public class CommonConnectionString
     private static CommonConnectionString ParseOracleTns(string connectionString)
     {
         var result = new CommonConnectionString();
-        var patterns = new Dictionary<string, string>
-        {
-            { "Server", @"HOST=([^)]+)" },
-            { "Port", @"PORT=(\d+)" },
-            { "Database", @"SERVICE_NAME=([^)]+)" },
-            { "Username", @"User Id=([^;]+)" },
-            { "Password", @"Password=([^;]+)" }
-        };
 
-        foreach (var pattern in patterns)
-        {
-            var match = Regex.Match(input: connectionString, pattern: pattern.Value);
-            if (!match.Success)
-                continue;
+        var hostMatch = RegexPatternCollections.OracleTnsHost().Match(connectionString);
+        if (hostMatch.Success)
+            result.Server = hostMatch.Groups[1].Value;
 
-            var value = match.Groups[1].Value;
-            switch (pattern.Key)
-            {
-                case "Server":
-                    result.Server = value;
-                    break;
-                case "Port":
-                    result.Port = value.CastToInteger() ?? 0;
-                    break;
-                case "Database":
-                    result.Database = value;
-                    break;
-                case "Username":
-                    result.Username = value;
-                    break;
-                case "Password":
-                    result.Password = value;
-                    break;
-            }
-        }
+        var portMatch = RegexPatternCollections.OracleTnsPort().Match(connectionString);
+        if (portMatch.Success)
+            result.Port = int.Parse(portMatch.Groups[1].Value);
+
+        var serviceMatch = RegexPatternCollections.OracleTnsServiceName().Match(connectionString);
+        if (serviceMatch.Success)
+            result.Database = serviceMatch.Groups[1].Value;
+
+        var userMatch = RegexPatternCollections.OracleTnsUserId().Match(connectionString);
+        if (userMatch.Success)
+            result.Username = userMatch.Groups[1].Value;
+
+        var passwordMatch = RegexPatternCollections.OracleTnsPassword().Match(connectionString);
+        if (passwordMatch.Success)
+            result.Password = passwordMatch.Groups[1].Value;
 
         return result;
     }
@@ -219,6 +203,7 @@ public class CommonConnectionString
     {
         var serverParts = value.Split(separator: ',')[0].Split(separator: ':');
         result.Server = serverParts[0].Trim().TrimEnd(trimChar: ']').TrimStart(trimChar: '[');
+
         if (serverParts.Length > 1)
             result.Port = serverParts[1].CastToInteger() ?? 0;
     }

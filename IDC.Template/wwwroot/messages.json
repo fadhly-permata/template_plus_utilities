@@ -47,8 +47,10 @@
         "query_preview": "The SQL query has been successfully previewed."
       }
     },
-    "endpoint_generator": {
-      "route_not_found": "Route not found"
+    "api_key": {
+      "invalid": "Invalid API key provided.",
+      "missing": "API key is missing from request headers.",
+      "not_registered": "No registered API keys found."
     }
   },
   "id": {
