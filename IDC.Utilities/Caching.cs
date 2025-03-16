@@ -81,10 +81,26 @@ public class Caching : IDisposable
     /// <param name="key">The key to associate with the cached item.</param>
     /// <param name="value">The value to cache.</param>
     /// <param name="expirationMinutes">Optional. The expiration time in minutes for this specific item.</param>
-    /// <returns>True if the item was successfully added to the cache; otherwise, false.</returns>
-    public bool Set(string key, object? value, int? expirationMinutes = null)
+    /// <param name="expirationRenewal">If true and key exists, updates expiration time of existing item.</param>
+    /// <returns>True if the item was successfully added or renewed in the cache; otherwise, false.</returns>
+    public bool Set(
+        string key,
+        object? value,
+        int? expirationMinutes = null,
+        bool expirationRenewal = true
+    )
     {
         ThrowIfDisposed();
+
+        if (expirationRenewal && _cache.TryGetValue(key: key, value: out var existingItem))
+        {
+            existingItem.Value = value;
+            existingItem.ExpiresAt = DateTime.UtcNow.AddMinutes(
+                value: expirationMinutes ?? _defaultExpirationMinutes
+            );
+            return true;
+        }
+
         return _cache.TryAdd(
             key: key,
             value: new CacheItem
@@ -102,15 +118,15 @@ public class Caching : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of the value to retrieve.</typeparam>
     /// <param name="key">The key of the item to retrieve.</param>
-    /// <param name="increaseExpiration">If true, resets the item's expiration time when retrieved.</param>
+    /// <param name="expirationRenewal">If true, resets the item's expiration time when retrieved.</param>
     /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
     /// <returns>The cached value if found and not expired; otherwise, default(T).</returns>
-    public T? Get<T>(string key, bool increaseExpiration = false, int? expirationMinutes = null)
+    public T? Get<T>(string key, bool expirationRenewal = true, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
         {
-            if (increaseExpiration)
+            if (expirationRenewal)
                 item.ExpiresAt = DateTime.UtcNow.AddMinutes(
                     value: expirationMinutes ?? _defaultExpirationMinutes
                 );
@@ -192,15 +208,15 @@ public class Caching : IDisposable
     /// Checks if an item exists in the cache and is not expired.
     /// </summary>
     /// <param name="key">The key to check.</param>
-    /// <param name="increaseExpiration">If true, resets the item's expiration time when checked.</param>
+    /// <param name="expirationRenewal">If true, resets the item's expiration time when checked.</param>
     /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
     /// <returns>True if the item exists and is not expired; otherwise, false.</returns>
-    public bool Exists(string key, bool increaseExpiration = false, int? expirationMinutes = null)
+    public bool Exists(string key, bool expirationRenewal = true, int? expirationMinutes = null)
     {
         ThrowIfDisposed();
         if (_cache.TryGetValue(key: key, value: out var item) && item.ExpiresAt > DateTime.UtcNow)
         {
-            if (increaseExpiration)
+            if (expirationRenewal)
                 item.ExpiresAt = DateTime.UtcNow.AddMinutes(
                     value: expirationMinutes ?? _defaultExpirationMinutes
                 );
@@ -250,11 +266,11 @@ public class Caching : IDisposable
     /// <summary>
     /// Retrieves all non-expired items from the cache.
     /// </summary>
-    /// <param name="increaseExpiration">If true, resets the expiration time for all retrieved items.</param>
+    /// <param name="expirationRenewal">If true, resets the expiration time for all retrieved items.</param>
     /// <param name="expirationMinutes">Optional. The new expiration time in minutes if increasing expiration.</param>
     /// <returns>A dictionary containing all non-expired cached items.</returns>
     public Dictionary<string, object?> GetAll(
-        bool increaseExpiration = false,
+        bool expirationRenewal = true,
         int? expirationMinutes = null
     )
     {
@@ -264,7 +280,7 @@ public class Caching : IDisposable
             .Where(predicate: x => x.Value.ExpiresAt > DateTime.UtcNow)
             .Select(selector: x =>
             {
-                if (increaseExpiration)
+                if (expirationRenewal)
                     x.Value.ExpiresAt = DateTime.UtcNow.AddMinutes(
                         value: expirationMinutes ?? _defaultExpirationMinutes
                     );
@@ -280,13 +296,13 @@ public class Caching : IDisposable
     /// <typeparam name="T">The type of the value to retrieve or set.</typeparam>
     /// <param name="key">The key to associate with the cached item.</param>
     /// <param name="value">The value to cache if the key is not found.</param>
-    /// <param name="increaseExpiration">If true, resets the expiration time when the item is retrieved.</param>
+    /// <param name="expirationRenewal">If true, resets the expiration time when the item is retrieved.</param>
     /// <param name="expirationMinutes">Optional. The expiration time in minutes for this specific item.</param>
     /// <returns>The cached value if found, or the provided value if not found.</returns>
     public T GetOrSet<T>(
         string key,
         T value,
-        bool increaseExpiration = false,
+        bool expirationRenewal = true,
         int? expirationMinutes = null
     )
     {
@@ -297,7 +313,7 @@ public class Caching : IDisposable
             && existing.ExpiresAt > DateTime.UtcNow
         )
         {
-            if (increaseExpiration)
+            if (expirationRenewal)
                 existing.ExpiresAt = DateTime.UtcNow.AddMinutes(
                     value: expirationMinutes ?? _defaultExpirationMinutes
                 );
