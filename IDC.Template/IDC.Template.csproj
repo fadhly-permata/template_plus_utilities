@@ -7,10 +7,9 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <None Include="wwwroot\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest">
     </None>
   </ItemGroup>
 

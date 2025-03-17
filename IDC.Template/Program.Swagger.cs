@@ -46,10 +46,18 @@ internal partial class Program
                 }
             };
 
-            options.SwaggerDoc("Main", openApiInfo);
+            options.SwaggerDoc(name: "Main", info: openApiInfo);
             options.SwaggerDoc(
-                "Demo",
-                new OpenApiInfo { Title = "Demo API", Version = openApiInfo.Version }
+                name: "Demo",
+                info: new OpenApiInfo
+                {
+                    Title = "Demo API",
+                    Version = openApiInfo.Version,
+                    Description = openApiInfo.Description,
+                    TermsOfService = openApiInfo.TermsOfService,
+                    Contact = openApiInfo.Contact,
+                    License = openApiInfo.License
+                }
             );
 
             // Konfigurasi untuk mengelompokkan berdasarkan Tags
