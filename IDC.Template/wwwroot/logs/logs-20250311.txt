@@ -1,6 +1,0 @@
-[2025-03-11 05:50:59] [Error] Type: System.NotSupportedException
-Message: SQLite does not support stored procedures
-StackTrace:
-   --> IDC.Utilities.Data.QueryBuilder.BuildPaginatedQuery(DynamicQueryRequest request, JObject parametersValue) in /media/fadhly/Data/-Repo/TemplateAndUtility/IDC.Utilities/Data/QueryBuilder.cs:line 359
-   --> IDC.Template.Controllers.DemoController.PreviewPaginatedQuery(DynamicQueryRequest request, String parameters) in /media/fadhly/Data/-Repo/TemplateAndUtility/IDC.Template/Controllers/DemoController.QueryBuilder.cs:line 111
-
