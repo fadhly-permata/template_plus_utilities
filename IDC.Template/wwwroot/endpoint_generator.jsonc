@@ -1,0 +1,203 @@
+{
+    "generated_dir": "/media/fadhly/Data/-Repo/TemplateAndUtility/IDC.Template/Controllers/Generated",
+    "demo_penjumlahan": {
+        "apiSettings": {
+            "summary": "Perform addition operation",
+            "description": "Adds two numbers and returns the result",
+            "tags": "ComponentSync",
+            "use_async": true,
+            "route": "/api/epg/penjumlahan",
+            "method": "POST"
+        },
+        "body_request": [
+            {
+                "name": "nilai1",
+                "type": "int"
+            },
+            {
+                "name": "nilai2",
+                "type": "int"
+            }
+        ],
+        "dbSettings": {
+            "engine": "SQLiteHelper",
+            "constring_name": "memory",
+            "query_type": "scalar",
+            "return_type": "int",
+            "query": "SELECT @nilai1 + @nilai2 as result"
+        },
+        "messages": {
+            "success": "api.message.processing_done",
+            "failed": "api.message.processing_failed"
+        },
+        "callback": {
+            "on_success": "public void OnSuccessCallback(string compCode, string cstAge) { systemLogging.LogInformation(message: $\"Sync success: {compCode}\"); }",
+            "on_failed": "public void OnFailedCallback(string compCode, string cstAge) { systemLogging.LogError(message: $\"Sync failed: {compCode}\"); }"
+        }
+    },
+    "get_user": {
+        "apiSettings": {
+            "summary": "Get user details by ID",
+            "description": "Retrieves detailed user information based on user ID",
+            "tags": "Users",
+            "use_async": true,
+            "route": "/api/epg/users/{userId}",
+            "method": "GET"
+        },
+        "route_params": [
+            {
+                "name": "userId",
+                "type": "Int"
+            }
+        ],
+        "dbSettings": {
+            "engine": "PostgreHelper",
+            "constring_name": "ConnectionString_en",
+            "query_type": "query",
+            "return_type": "JObject",
+            "query": "SELECT * FROM users WHERE user_id = @userId"
+        },
+        "messages": {
+            "success": "api.message.user_retrieved",
+            "failed": "api.message.user_not_found"
+        }
+    },
+    "create_product": {
+        "apiSettings": {
+            "summary": "Create new product",
+            "description": "Creates a new product with the specified details",
+            "tags": "Products",
+            "use_async": true,
+            "route": "/api/epg/products",
+            "method": "POST"
+        },
+        "body_request": [
+            {
+                "name": "name",
+                "type": "Varchar"
+            },
+            {
+                "name": "price",
+                "type": "Decimal"
+            },
+            {
+                "name": "category_id",
+                "type": "Int"
+            }
+        ],
+        "dbSettings": {
+            "engine": "PostgreHelper",
+            "constring_name": "ConnectionString_en",
+            "query_type": "scalar",
+            "return_type": "Int",
+            "query": "INSERT INTO products (name, price, category_id) VALUES (@name, @price, @category_id) RETURNING product_id"
+        },
+        "messages": {
+            "success": "api.message.product_created",
+            "failed": "api.message.product_creation_failed"
+        }
+    },
+    "update_order": {
+        "apiSettings": {
+            "summary": "Update order status",
+            "description": "Updates the status of an existing order",
+            "tags": "Orders",
+            "use_async": true,
+            "route": "/api/epg/orders/{orderId}",
+            "method": "PUT"
+        },
+        "route_params": [
+            {
+                "name": "orderId",
+                "type": "Int"
+            }
+        ],
+        "body_request": [
+            {
+                "name": "status",
+                "type": "Varchar"
+            },
+            {
+                "name": "updated_by",
+                "type": "Int"
+            }
+        ],
+        "dbSettings": {
+            "engine": "PostgreHelper",
+            "constring_name": "ConnectionString_en",
+            "query_type": "nonquery",
+            "return_type": "Int",
+            "query": "UPDATE orders SET status = @status, updated_by = @updated_by, updated_at = CURRENT_TIMESTAMP WHERE order_id = @orderId"
+        },
+        "messages": {
+            "success": "api.message.order_updated",
+            "failed": "api.message.order_update_failed"
+        }
+    },
+    "search_customers": {
+        "apiSettings": {
+            "summary": "Search customers",
+            "description": "Search customers based on various criteria",
+            "tags": "Customers",
+            "use_async": true,
+            "route": "/api/epg/customers/search",
+            "method": "GET"
+        },
+        "query_params": [
+            {
+                "name": "name",
+                "type": "Varchar"
+            },
+            {
+                "name": "email",
+                "type": "Varchar"
+            },
+            {
+                "name": "status",
+                "type": "Varchar"
+            }
+        ],
+        "dbSettings": {
+            "engine": "PostgreHelper",
+            "constring_name": "ConnectionString_en",
+            "query_type": "query",
+            "return_type": "JObject",
+            "query": "SELECT * FROM customers WHERE (@name IS NULL OR name ILIKE '%' || @name || '%') AND (@email IS NULL OR email = @email) AND (@status IS NULL OR status = @status)"
+        },
+        "messages": {
+            "success": "api.message.customers_found",
+            "failed": "api.message.search_failed"
+        }
+    },
+    "delete_category": {
+        "apiSettings": {
+            "summary": "Delete product category",
+            "description": "Deletes a product category and all associated products",
+            "tags": "Categories",
+            "use_async": true,
+            "route": "/api/epg/categories/{categoryId}",
+            "method": "DELETE"
+        },
+        "route_params": [
+            {
+                "name": "categoryId",
+                "type": "Int"
+            }
+        ],
+        "dbSettings": {
+            "engine": "PostgreHelper",
+            "constring_name": "ConnectionString_en",
+            "query_type": "nonquery",
+            "return_type": "Int",
+            "query": "DELETE FROM products WHERE category_id = @categoryId"
+        },
+        "messages": {
+            "success": "api.message.category_deleted",
+            "failed": "api.message.category_deletion_failed"
+        },
+        "callback": {
+            "on_success": "public void OnSuccessCallback(int categoryId) { systemLogging.LogInformation(message: $\"Category {categoryId} deleted successfully\"); }",
+            "on_failed": "public void OnFailedCallback(int categoryId) { systemLogging.LogError(message: $\"Failed to delete category {categoryId}\"); }"
+        }
+    }
+}

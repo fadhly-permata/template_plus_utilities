@@ -1,0 +1,104 @@
+﻿{
+  "en": {
+    "api": {
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "error": "Error"
+      },
+      "nullMessages": {
+        "json_prop_not_found": "JSON property not found: {0}"
+      },
+      "message": {
+        "processing_done": "API processing has been completed.",
+        "processing_failed": "API processing has failed.",
+        "processing_error": "API processing has encountered an error.",
+        "processing_exception": "API processing has encountered an exception.",
+        "request_validation_error": "An error occurred during request data validation."
+      },
+      "logging": {
+        "directory_not_found": "Directory not found: {0}",
+        "log_file_not_found": "Log file not found"
+      },
+      "sqlite": {
+        "connection_established": "The connection to the SQLite database has been established.",
+        "connection_not_established": "The connection to the SQLite database has not been established.",
+        "transaction_started": "The database transaction has already commenced.",
+        "transaction_not_started": "The database transaction has not been initiated."
+      },
+      "ddl": {
+        "table_created": "The table has been successfully created.",
+        "table_not_created": "The table has not been created.",
+        "table_dropped": "The table has been successfully dropped.",
+        "table_not_dropped": "The table has not been dropped.",
+        "table_altered": "The table has been successfully altered.",
+        "table_not_altered": "The table has not been altered.",
+        "table_retrieved": "The table has been successfully retrieved.",
+        "table_info_retrieved": "The table information has been successfully retrieved.",
+        "no_columns_specified": "No columns specified for table alteration."
+      },
+      "dml": {
+        "data_inserted": "The data has been successfully inserted.",
+        "data_not_inserted": "The data has not been inserted.",
+        "data_updated": "The data has been successfully updated.",
+        "data_not_updated": "The data has not been updated.",
+        "data_deleted": "The data has been successfully deleted.",
+        "data_not_deleted": "The data has not been deleted.",
+        "query_preview": "The SQL query has been successfully previewed."
+      }
+    },
+    "security": {
+      "api_key": {
+        "invalid": "Invalid API key provided.",
+        "missing": "API key is missing from request headers.",
+        "not_registered": "No registered API keys found."
+      }
+    }
+  },
+  "id": {
+    "api": {
+      "status": {
+        "success": "Berhasil",
+        "failed": "Gagal",
+        "error": "Kesalahan"
+      },
+      "message": {
+        "processing_done": "Pemrosesan API telah selesai.",
+        "processing_failed": "Pemrosesan API telah gagal.",
+        "processing_error": "Pemrosesan API telah mengalami kesalahan.",
+        "processing_exception": "Pemrosesan API telah mengalami exception.",
+        "request_validation_error": "Terjadi Kesalahan saat melakukan validasi pada data request."
+      },
+      "logging": {
+        "directory_not_found": "Direktori tidak ditemukan: {0}",
+        "log_file_not_found": "File log tidak ditemukan"
+      },
+      "sqlite": {
+        "connection_established": "Koneksi ke database SQLite telah berhasil dibuat.",
+        "connection_not_established": "Koneksi ke database SQLite belum dibuat.",
+        "transaction_started": "Transaksi database telah dimulai.",
+        "transaction_not_started": "Transaksi database belum dimulai."
+      },
+      "ddl": {
+        "table_created": "Tabel telah berhasil dibuat.",
+        "table_not_created": "Tabel belum dibuat.",
+        "table_dropped": "Tabel telah berhasil dihapus.",
+        "table_not_dropped": "Tabel belum dihapus.",
+        "table_altered": "Tabel telah berhasil diubah.",
+        "table_not_altered": "Tabel belum diubah.",
+        "table_retrieved": "Tabel telah berhasil diambil.",
+        "table_info_retrieved": "Informasi tabel telah berhasil diambil.",
+        "no_columns_specified": "Tidak ada kolom yang ditentukan untuk perubahan tabel."
+      },
+      "dml": {
+        "data_inserted": "Data telah berhasil ditambahkan.",
+        "data_not_inserted": "Data belum ditambahkan.",
+        "data_updated": "Data telah berhasil diperbarui.",
+        "data_not_updated": "Data belum diperbarui.",
+        "data_deleted": "Data telah berhasil dihapus.",
+        "data_not_deleted": "Data belum dihapus.",
+        "query_preview": "Query SQL telah berhasil ditampilkan."
+      }
+    }
+  }
+}

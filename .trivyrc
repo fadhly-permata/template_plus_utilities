@@ -1,0 +1,20 @@
+format: table
+severity: ["CRITICAL", "HIGH"]
+exit-code: 0
+scan:
+  skip-dirs:
+    - "bin"
+    - "obj"
+    - ".git"
+scanners:
+  - vuln
+  - secret
+  - config
+db:
+  skip-update: false
+  no-progress: true
+secret:
+  disable-allow-rules: false
+misconfiguration:
+  ignore-policy: true
+  config-policy: "github.com/aquasecurity/trivy-policies/bundle/default.yaml"

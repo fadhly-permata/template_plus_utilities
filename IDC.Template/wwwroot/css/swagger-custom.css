@@ -1,0 +1,84 @@
+@charset "UTF-8";
+/* cheat */
+.swagger-ui .topbar svg:not(:root) {
+    display: none;
+}
+
+.topbar-wrapper .link:before {
+    background-image: url('/images/idx-logo-white.png');
+    display: inline-block;
+    background-size: 126.5px 24.5px;
+    width: 126.5px;
+    height: 24.5px;
+    content: "";
+}
+
+.swagger-ui .topbar .wrapper { 
+    position: relative; 
+}
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .theme-container {
+        background: #2D2A2E;
+        border-color: #3E3D32;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .theme-select {
+        background-color: #3E3D32;
+        border-color: #4E4D42;
+        color: #F8F8F2;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F8F8F2' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.763L10.825 4z'/%3E%3C/svg%3E");
+    }
+
+    .theme-select:hover {
+        border-color: #6E6D62;
+        background-color: #4E4D42;
+    }
+
+    .theme-select:focus {
+        border-color: #7E7D72;
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+    }
+}
+
+.theme-container {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #fff !important;
+    padding: 15px;
+    border-radius: 32px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    border: 1px solid #e0e0e0;
+    z-index: 9999;
+}
+
+.theme-select {
+    padding: 6px 30px 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: #fff !important;
+    font-size: 13px;
+    color: #333 !important;
+    cursor: pointer;
+    min-width: 150px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.763L10.825 4z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+}
+
+.theme-select:hover {
+    border-color: #999;
+    background-color: #f8f9fa !important;
+}
+
+.theme-select:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}

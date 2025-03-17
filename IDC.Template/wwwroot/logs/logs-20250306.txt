@@ -1,0 +1,18 @@
+[2025-03-06 00:59:21] [Error] The SQLiteHelper has already been disposed.
+[2025-03-06 00:59:21] [Error] The SQLiteHelper has already been disposed.
+[2025-03-06 00:59:21] [Error] The SQLiteHelper has already been disposed.
+[2025-03-06 00:59:21] [Error] The SQLiteHelper has already been disposed.
+[2025-03-06 00:59:21] [Error] The SQLiteHelper has already been disposed.
+[2025-03-06 01:14:01] [Error] Type: Microsoft.Data.Sqlite.SqliteException
+Message: SQLite Error 1: 'near ")": syntax error'.
+StackTrace:
+   --> Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   --> Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   --> Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   --> Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   --> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   --> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader()
+   --> Microsoft.Data.Sqlite.SqliteCommand.ExecuteNonQuery()
+   --> IDC.Utilities.Data.SQLiteHelper.ExecuteNonQuery(String query, Int32& affectedRows) in /media/fadhly/Data/-Repo/TemplateAndUtility/IDC.Utilities/Data/SQLite/Methods.cs:line 100
+   --> IDC.Template.Controllers.DemoController.CreateTable(CreateTableRequest request) in /media/fadhly/Data/-Repo/TemplateAndUtility/IDC.Template/Controllers/DemoController.SQLiteMemory.cs:line 35
+

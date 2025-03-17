@@ -1,0 +1,160 @@
+[2025-03-15 06:05:41] [Error] Type: System.ArgumentException
+Message: Database names must be non-empty and not contain '.' or the null character. (Parameter 'databaseName')
+StackTrace:
+   --> MongoDB.Driver.Core.Misc.Ensure.That[T](T value, Func`2 assertion, String paramName, String message)
+   --> MongoDB.Driver.DatabaseNamespace..ctor(String databaseName)
+   --> MongoDB.Driver.MongoClient.GetDatabase(String name, MongoDatabaseSettings settings)
+   --> IDC.Utilities.Data.MongoHelper..ctor(CommonConnectionString connectionString, Messages messages, SystemLogging logging) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Utilities/Data/Mongod/CTOR.cs:line 100
+
+[2025-03-15 06:14:46] [Error] Type: System.TimeoutException
+Message: A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = ReadPreferenceServerSelector{ ReadPreference = { Mode : Primary } }, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/localhost:27017" }", EndPoint: "Unspecified/localhost:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.IO.IOException: Received an unexpected EOF or 0 bytes from the transport stream.
+   at System.Net.Security.SslStream.ReceiveHandshakeFrameAsync[TIOAdapter](CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.ForceAuthenticationAsync[TIOAdapter](Boolean receiveFirst, Byte[] reAuthenticationData, CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.AuthenticateAsClient(SslClientAuthenticationOptions sslClientAuthenticationOptions)
+   at MongoDB.Driver.Core.Connections.SslStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2025-03-14T23:14:46.0879858Z", LastUpdateTimestamp: "2025-03-14T23:14:46.0879869Z" }] }.
+StackTrace:
+   --> MongoDB.Driver.Core.Clusters.Cluster.ThrowTimeoutException(IServerSelector selector, ClusterDescription description)
+   --> MongoDB.Driver.Core.Clusters.Cluster.WaitForDescriptionChangedAsync(IServerSelector selector, ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.Cluster.SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.IClusterExtensions.SelectServerAndPinIfNeededAsync(ICluster cluster, ICoreSessionHandle session, IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Bindings.ReadPreferenceBinding.GetReadChannelSourceAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.InitializeAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.CreateAsync(IReadBinding binding, Boolean retryRequested, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+   --> MongoDB.Driver.OperationExecutor.ExecuteReadOperationAsync[TResult](IReadBinding binding, IReadOperation`1 operation, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.ExecuteReadOperationAsync[TResult](IClientSessionHandle session, IReadOperation`1 operation, ReadPreference readPreference, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.UsingImplicitSessionAsync[TResult](Func`2 funcAsync, CancellationToken cancellationToken)
+   --> MongoDB.Driver.IAsyncCursorSourceExtensions.ToListAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
+   --> IDC.Utilities.Data.MongoHelper.ExecuteQueryAsync[T](String collection, FilterDefinition`1 filter, Action`1 callback, CancellationToken cancellationToken) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Utilities/Data/Mongod/Methods.cs:line 338
+
+[2025-03-15 06:26:24] [Error] Type: System.TimeoutException
+Message: A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = ReadPreferenceServerSelector{ ReadPreference = { Mode : Primary } }, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/localhost:27017" }", EndPoint: "Unspecified/localhost:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.IO.IOException: Received an unexpected EOF or 0 bytes from the transport stream.
+   at System.Net.Security.SslStream.ReceiveHandshakeFrameAsync[TIOAdapter](CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.ForceAuthenticationAsync[TIOAdapter](Boolean receiveFirst, Byte[] reAuthenticationData, CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.AuthenticateAsClient(SslClientAuthenticationOptions sslClientAuthenticationOptions)
+   at MongoDB.Driver.Core.Connections.SslStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2025-03-14T23:26:24.1936457Z", LastUpdateTimestamp: "2025-03-14T23:26:24.1936467Z" }] }.
+StackTrace:
+   --> MongoDB.Driver.Core.Clusters.Cluster.ThrowTimeoutException(IServerSelector selector, ClusterDescription description)
+   --> MongoDB.Driver.Core.Clusters.Cluster.WaitForDescriptionChangedAsync(IServerSelector selector, ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.Cluster.SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.IClusterExtensions.SelectServerAndPinIfNeededAsync(ICluster cluster, ICoreSessionHandle session, IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Bindings.ReadPreferenceBinding.GetReadChannelSourceAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.InitializeAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.CreateAsync(IReadBinding binding, Boolean retryRequested, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+   --> MongoDB.Driver.OperationExecutor.ExecuteReadOperationAsync[TResult](IReadBinding binding, IReadOperation`1 operation, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.ExecuteReadOperationAsync[TResult](IClientSessionHandle session, IReadOperation`1 operation, ReadPreference readPreference, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.UsingImplicitSessionAsync[TResult](Func`2 funcAsync, CancellationToken cancellationToken)
+   --> MongoDB.Driver.IAsyncCursorSourceExtensions.ToListAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
+   --> IDC.Utilities.Data.MongoHelper.ExecuteQueryAsync[T](String collection, FilterDefinition`1 filter, Action`1 callback, CancellationToken cancellationToken) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Utilities/Data/Mongod/Methods.cs:line 338
+
+[2025-03-15 06:29:37] [Error] Type: System.TimeoutException
+Message: A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = ReadPreferenceServerSelector{ ReadPreference = { Mode : Primary } }, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/localhost:27017" }", EndPoint: "Unspecified/localhost:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.IO.IOException: Received an unexpected EOF or 0 bytes from the transport stream.
+   at System.Net.Security.SslStream.ReceiveHandshakeFrameAsync[TIOAdapter](CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.ForceAuthenticationAsync[TIOAdapter](Boolean receiveFirst, Byte[] reAuthenticationData, CancellationToken cancellationToken)
+   at System.Net.Security.SslStream.AuthenticateAsClient(SslClientAuthenticationOptions sslClientAuthenticationOptions)
+   at MongoDB.Driver.Core.Connections.SslStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2025-03-14T23:29:36.9543437Z", LastUpdateTimestamp: "2025-03-14T23:29:36.9543445Z" }] }.
+StackTrace:
+   --> MongoDB.Driver.Core.Clusters.Cluster.ThrowTimeoutException(IServerSelector selector, ClusterDescription description)
+   --> MongoDB.Driver.Core.Clusters.Cluster.WaitForDescriptionChangedAsync(IServerSelector selector, ClusterDescription description, Task descriptionChangedTask, TimeSpan timeout, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.Cluster.SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Clusters.IClusterExtensions.SelectServerAndPinIfNeededAsync(ICluster cluster, ICoreSessionHandle session, IServerSelector selector, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Bindings.ReadPreferenceBinding.GetReadChannelSourceAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.InitializeAsync(CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.RetryableReadContext.CreateAsync(IReadBinding binding, Boolean retryRequested, CancellationToken cancellationToken)
+   --> MongoDB.Driver.Core.Operations.FindOperation`1.ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+   --> MongoDB.Driver.OperationExecutor.ExecuteReadOperationAsync[TResult](IReadBinding binding, IReadOperation`1 operation, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.ExecuteReadOperationAsync[TResult](IClientSessionHandle session, IReadOperation`1 operation, ReadPreference readPreference, CancellationToken cancellationToken)
+   --> MongoDB.Driver.MongoCollectionImpl`1.UsingImplicitSessionAsync[TResult](Func`2 funcAsync, CancellationToken cancellationToken)
+   --> MongoDB.Driver.IAsyncCursorSourceExtensions.ToListAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
+   --> IDC.Utilities.Data.MongoHelper.ExecuteQueryAsync[T](String collection, FilterDefinition`1 filter, Action`1 callback, CancellationToken cancellationToken) in /media/fadhly/Data/GitHub/template_plus_utilities/IDC.Utilities/Data/Mongod/Methods.cs:line 338
+
+[2025-03-15 23:48:16] [Error] Type: System.ArgumentNullException
+Message: Value cannot be null. (Parameter 'modelMetadata')
+StackTrace:
+   --> System.ArgumentNullException.Throw(String paramName)
+   --> System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.DefaultModelBindingContext.EnterNestedScope(ModelMetadata modelMetadata, String fieldName, String modelName, Object model)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.TryBindStrongModel[TModel](ModelBindingContext bindingContext, IModelBinder binder, String propertyName, String propertyModelName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindComplexCollectionFromIndexes(ModelBindingContext bindingContext, IEnumerable`1 indexNames)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.DictionaryModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   --> Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+
+[2025-03-15 23:50:01] [Error] Type: System.ArgumentNullException
+Message: Value cannot be null. (Parameter 'modelMetadata')
+StackTrace:
+   --> System.ArgumentNullException.Throw(String paramName)
+   --> System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.DefaultModelBindingContext.EnterNestedScope(ModelMetadata modelMetadata, String fieldName, String modelName, Object model)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.TryBindStrongModel[TModel](ModelBindingContext bindingContext, IModelBinder binder, String propertyName, String propertyModelName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindComplexCollectionFromIndexes(ModelBindingContext bindingContext, IEnumerable`1 indexNames)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.DictionaryModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   --> Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+
+[2025-03-15 23:53:31] [Error] Type: System.ArgumentNullException
+Message: Value cannot be null. (Parameter 'modelMetadata')
+StackTrace:
+   --> System.ArgumentNullException.Throw(String paramName)
+   --> System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.DefaultModelBindingContext.EnterNestedScope(ModelMetadata modelMetadata, String fieldName, String modelName, Object model)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.TryBindStrongModel[TModel](ModelBindingContext bindingContext, IModelBinder binder, String propertyName, String propertyModelName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindComplexCollectionFromIndexes(ModelBindingContext bindingContext, IEnumerable`1 indexNames)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.DictionaryModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   --> Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+
+[2025-03-15 23:58:36] [Error] Type: System.ArgumentNullException
+Message: Value cannot be null. (Parameter 'modelMetadata')
+StackTrace:
+   --> System.ArgumentNullException.Throw(String paramName)
+   --> System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.DefaultModelBindingContext.EnterNestedScope(ModelMetadata modelMetadata, String fieldName, String modelName, Object model)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.TryBindStrongModel[TModel](ModelBindingContext bindingContext, IModelBinder binder, String propertyName, String propertyModelName)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.KeyValuePairModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindComplexCollectionFromIndexes(ModelBindingContext bindingContext, IEnumerable`1 indexNames)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.CollectionModelBinder`1.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.Binders.DictionaryModelBinder`2.BindModelAsync(ModelBindingContext bindingContext)
+   --> Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   --> Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   --> Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextExceptionFilterAsync>g__Awaited|26_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+
