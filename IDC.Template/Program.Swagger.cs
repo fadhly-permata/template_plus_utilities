@@ -3,7 +3,6 @@ using IDC.Template.Utilities.DI;
 using IDC.Template.Utilities.Middlewares.Swagger;
 using IDC.Template.Utilities.Models;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Linq;
 
 internal partial class Program
 {
