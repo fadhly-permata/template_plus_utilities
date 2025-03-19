@@ -2,19 +2,6 @@ using MongoDB.Driver;
 
 namespace IDC.Utilities.Data;
 
-/// <summary>
-/// Provides helper methods for MongoDB operations.
-/// </summary>
-/// <remarks>
-/// This class encapsulates MongoDB client operations, including connection management,
-/// database interactions, and session handling.
-///
-/// Example usage:
-/// <code>
-/// using var mongo = new MongoHelper(connectionString);
-/// var result = await mongo.FindOneAsync&lt;MyDocument&gt;(filter);
-/// </code>
-/// </remarks>
 public sealed partial class MongoHelper
 {
     /// <summary>

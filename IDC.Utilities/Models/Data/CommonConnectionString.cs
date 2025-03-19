@@ -4,15 +4,39 @@ using IDC.Utilities.Extensions;
 namespace IDC.Utilities.Models.Data;
 
 /// <summary>
-/// Represents a common connection string format that can be converted to various database-specific formats.
+/// Provides a unified connection string format that supports multiple database systems.
 /// </summary>
 /// <remarks>
-/// This class provides a standardized way to handle connection strings across different database systems.
-/// It supports parsing from standard connection string format and conversion to specific database formats.
+/// Standardizes connection string handling across various database platforms including:
+/// - SQLite
+/// - PostgreSQL
+/// - MongoDB
+/// - SQL Server
+/// - Oracle
+/// - MariaDB
+/// - Cassandra
 ///
-/// Example connection string:
-/// "Server=localhost;Database=mydb;User ID=user;Password=pass;Port=5432;Connection Timeout=30"
+/// Example connection strings:
+/// ```
+/// // PostgreSQL
+/// "Server=localhost;Port=5432;Database=mydb;User ID=user;Password=pass;"
+///
+/// // MongoDB
+/// "mongodb://user:pass@localhost:27017/mydb"
+///
+/// // Oracle TNS
+/// "(DESCRIPTION=(HOST=myhost)(PORT=1521)(SERVICE_NAME=myservice));User Id=user;Password=pass;"
+/// ```
+///
+/// > [!IMPORTANT]
+/// > Always secure sensitive connection string information, especially in production environments.
+///
+/// > [!TIP]
+/// > Use environment variables or secure configuration storage for connection strings.
 /// </remarks>
+/// <seealso href="https://www.mongodb.com/docs/manual/reference/connection-string/">MongoDB Connection String</seealso>
+/// <seealso href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">PostgreSQL Connection String</seealso>
+/// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqliteconnectionstringbuilder">SQLite Connection String</seealso>
 public class CommonConnectionString
 {
     /// <summary>
@@ -58,78 +82,245 @@ public class CommonConnectionString
     }
 
     /// <summary>
-    /// Gets or sets the server/host name.
+    /// Gets or sets the server/host name for the database connection.
     /// </summary>
+    /// <value>
+    /// The server name, hostname, or IP address.
+    /// Defaults to "localhost" if not specified.
+    /// </value>
+    /// <remarks>
+    /// For different database systems:
+    /// - SQLite: Not used (uses Database for file path)
+    /// - MongoDB: Can be multiple hosts for replica sets
+    /// - PostgreSQL/SQL Server: Server name or IP
+    /// - Oracle: TNS host name
+    ///
+    /// > [!NOTE]
+    /// > IPv6 addresses should be enclosed in square brackets.
+    /// </remarks>
     public string? Server { get; set; }
 
     /// <summary>
-    /// Gets or sets the database/catalog name.
+    /// Gets or sets the database name or file path.
     /// </summary>
+    /// <value>
+    /// Database name, catalog name, or file path for SQLite.
+    /// Defaults to ":memory:" for SQLite in-memory database.
+    /// </value>
+    /// <remarks>
+    /// Database-specific usage:
+    /// - SQLite: File path or ":memory:"
+    /// - PostgreSQL: Database name
+    /// - MongoDB: Database name
+    /// - Oracle: Service name
+    /// - Cassandra: Keyspace name
+    ///
+    /// > [!IMPORTANT]
+    /// > For SQLite, ensure proper file permissions and directory existence.
+    /// </remarks>
     public string? Database { get; set; }
 
     /// <summary>
-    /// Gets or sets the username for authentication.
+    /// Gets or sets the username for database authentication.
     /// </summary>
+    /// <value>
+    /// Authentication username.
+    /// Empty string by default.
+    /// </value>
+    /// <remarks>
+    /// Authentication considerations:
+    /// - Not used for SQLite
+    /// - Required for most remote database connections
+    /// - Optional when using Integrated Security
+    ///
+    /// > [!CAUTION]
+    /// > Avoid hardcoding credentials in source code.
+    /// </remarks>
     public string? Username { get; set; }
 
     /// <summary>
-    /// Gets or sets the password for authentication.
+    /// Gets or sets the password for database authentication.
     /// </summary>
+    /// <value>
+    /// Authentication password.
+    /// Empty string by default.
+    /// </value>
+    /// <remarks>
+    /// Security considerations:
+    /// - Store securely using encryption or secure configuration
+    /// - Not used for SQLite
+    /// - Optional when using Integrated Security
+    ///
+    /// > [!WARNING]
+    /// > Never log or display password values.
+    /// </remarks>
     public string? Password { get; set; }
 
     /// <summary>
-    /// Gets or sets the port number. Default is 0.
+    /// Gets or sets the port number for the database connection.
     /// </summary>
+    /// <value>
+    /// Port number, 0 means use default port.
+    /// </value>
+    /// <remarks>
+    /// Default ports:
+    /// - PostgreSQL: 5432
+    /// - MongoDB: 27017
+    /// - SQL Server: 1433
+    /// - MySQL/MariaDB: 3306
+    /// - Oracle: 1521
+    /// - Cassandra: 9042
+    ///
+    /// > [!NOTE]
+    /// > Port 0 triggers use of database-specific default port.
+    /// </remarks>
     public int Port { get; set; }
 
     /// <summary>
     /// Gets or sets whether to use Windows Authentication.
     /// </summary>
+    /// <value>
+    /// True to use Windows Authentication, false for SQL authentication.
+    /// Defaults to false.
+    /// </value>
+    /// <remarks>
+    /// Supported primarily by:
+    /// - SQL Server
+    /// - PostgreSQL (with SSPI)
+    ///
+    /// > [!NOTE]
+    /// > Not applicable for SQLite, MongoDB, and some other databases.
+    /// </remarks>
     public bool IntegratedSecurity { get; set; }
 
     /// <summary>
     /// Gets or sets whether to trust the server certificate.
     /// </summary>
+    /// <value>
+    /// True to trust server certificate, false to validate.
+    /// Defaults to true.
+    /// </value>
+    /// <remarks>
+    /// Security implications:
+    /// - Development: Often set to true for self-signed certificates
+    /// - Production: Should be false to ensure proper certificate validation
+    ///
+    /// > [!CAUTION]
+    /// > Setting to true in production may expose to MITM attacks.
+    /// </remarks>
     public bool TrustServerCertificate { get; set; }
 
     /// <summary>
-    /// Gets or sets the connection timeout in seconds. Default is 30.
+    /// Gets or sets the connection timeout in seconds.
     /// </summary>
-    public int ConnectionTimeout { get; set; } = 30;
+    /// <value>
+    /// Timeout in seconds.
+    /// Defaults to 30 seconds.
+    /// </value>
+    /// <remarks>
+    /// Considerations:
+    /// - Shorter timeouts for web applications
+    /// - Longer timeouts for batch processing
+    /// - Some databases use milliseconds internally
+    ///
+    /// > [!TIP]
+    /// > Adjust based on network reliability and application needs.
+    /// </remarks>
+    public int ConnectionTimeout { get; set; }
 
     /// <summary>
     /// Gets or sets the application name identifier.
     /// </summary>
+    /// <value>
+    /// Application identifier string.
+    /// Null by default.
+    /// </value>
+    /// <remarks>
+    /// Used for:
+    /// - Monitoring and logging
+    /// - Resource attribution
+    /// - Connection pooling identification
+    ///
+    /// > [!TIP]
+    /// > Set to meaningful value for better diagnostics.
+    /// </remarks>
     public string? ApplicationName { get; set; }
 
     /// <summary>
-    /// Gets or sets whether connection pooling is enabled. Default is true.
+    /// Gets or sets whether connection pooling is enabled.
     /// </summary>
-    public bool Pooling { get; set; } = true;
+    /// <value>
+    /// True to enable pooling, false to disable.
+    /// Defaults to true.
+    /// </value>
+    /// <remarks>
+    /// Benefits:
+    /// - Reduces connection overhead
+    /// - Improves application performance
+    /// - Manages connection resources
+    ///
+    /// > [!IMPORTANT]
+    /// > Disable only when specifically required.
+    /// </remarks>
+    public bool Pooling { get; set; }
 
     /// <summary>
-    /// Gets or sets the minimum pool size. Default is 1.
+    /// Gets or sets the minimum connection pool size.
     /// </summary>
-    public int MinPoolSize { get; set; } = 1;
+    /// <value>
+    /// Minimum number of connections.
+    /// Defaults to 1.
+    /// </value>
+    /// <remarks>
+    /// Considerations:
+    /// - Higher values pre-allocate connections
+    /// - Impacts startup time
+    /// - Memory usage implications
+    ///
+    /// > [!TIP]
+    /// > Set based on minimum concurrent connection needs.
+    /// </remarks>
+    public int MinPoolSize { get; set; }
 
     /// <summary>
-    /// Gets or sets the maximum pool size. Default is 100.
+    /// Gets or sets the maximum connection pool size.
     /// </summary>
-    public int MaxPoolSize { get; set; } = 100;
+    /// <value>
+    /// Maximum number of connections.
+    /// Defaults to 100.
+    /// </value>
+    /// <remarks>
+    /// Factors to consider:
+    /// - Available system resources
+    /// - Expected concurrent connections
+    /// - Database server capacity
+    ///
+    /// > [!IMPORTANT]
+    /// > Monitor pool exhaustion in production.
+    /// </remarks>
+    public int MaxPoolSize { get; set; }
 
     /// <summary>
     /// Parses a MongoDB connection URL into a CommonConnectionString object.
     /// </summary>
-    /// <param name="connectionString">MongoDB connection URL in format: mongodb://[username:password@]host[:port]/database</param>
-    /// <returns>A CommonConnectionString instance populated with MongoDB connection details</returns>
+    /// <param name="connectionString">MongoDB connection URL to parse</param>
+    /// <returns>A <see cref="CommonConnectionString"/> instance populated with MongoDB connection details</returns>
     /// <remarks>
-    /// Supports standard MongoDB connection URL format.
+    /// Supports standard MongoDB connection URL format with authentication and options.
     /// See: <see href="https://www.mongodb.com/docs/manual/reference/connection-string/"/>
     ///
-    /// Example:
+    /// Example formats:
     /// <code>
+    /// mongodb://localhost:27017/mydatabase
     /// mongodb://myuser:mypassword@localhost:27017/mydatabase
+    /// mongodb://myuser:mypassword@localhost:27017/mydatabase?retryWrites=true&amp;w=majority
     /// </code>
+    ///
+    /// > [!NOTE]
+    /// > IPv6 addresses should be enclosed in square brackets, e.g., [::1]
+    ///
+    /// > [!IMPORTANT]
+    /// > Credentials in the connection string should be properly URI-encoded
     /// </remarks>
     private static CommonConnectionString ParseMongoDbUrl(string connectionString)
     {
@@ -153,16 +344,23 @@ public class CommonConnectionString
     /// <summary>
     /// Parses an Oracle TNS connection string into a CommonConnectionString object.
     /// </summary>
-    /// <param name="connectionString">Oracle TNS format connection string</param>
-    /// <returns>A CommonConnectionString instance populated with Oracle connection details</returns>
+    /// <param name="connectionString">Oracle TNS format connection string to parse</param>
+    /// <returns>A <see cref="CommonConnectionString"/> instance populated with Oracle connection details</returns>
     /// <remarks>
-    /// Supports Oracle TNS format with HOST, PORT, SERVICE_NAME parameters.
+    /// Supports Oracle TNS format with various parameters including HOST, PORT, SERVICE_NAME.
     /// See: <see href="https://www.oracle.com/database/technologies/net-connection-using-tns.html"/>
     ///
-    /// Example:
+    /// Example formats:
     /// <code>
+    /// (DESCRIPTION=(HOST=myhost)(PORT=1521)(SERVICE_NAME=myservice))
     /// (DESCRIPTION=(HOST=myhost)(PORT=1521)(SERVICE_NAME=myservice));User Id=myuser;Password=mypassword
     /// </code>
+    ///
+    /// > [!NOTE]
+    /// > Uses regex patterns from <see cref="RegexPatternCollections"/> for parsing
+    ///
+    /// > [!TIP]
+    /// > For better security, consider using external credential providers instead of embedding credentials
     /// </remarks>
     private static CommonConnectionString ParseOracleTns(string connectionString)
     {
@@ -195,9 +393,18 @@ public class CommonConnectionString
     /// Parses server value that may include port number.
     /// </summary>
     /// <param name="result">CommonConnectionString instance to update</param>
-    /// <param name="value">Server value string that may include port (e.g. "localhost,1433" or "server:5432")</param>
+    /// <param name="value">Server value string that may include port</param>
     /// <remarks>
-    /// Handles various server:port formats including IPv6 addresses.
+    /// Handles various server:port formats including:
+    /// <code>
+    /// localhost:5432
+    /// server,1433
+    /// [::1]:27017
+    /// [2001:db8::1]:5432
+    /// </code>
+    ///
+    /// > [!NOTE]
+    /// > IPv6 addresses are automatically detected and properly handled
     /// </remarks>
     private static void ParseServerValue(CommonConnectionString result, string value)
     {
@@ -211,11 +418,21 @@ public class CommonConnectionString
     /// <summary>
     /// Parses timeout value that may be in seconds or milliseconds.
     /// </summary>
-    /// <param name="value">Timeout string value (e.g. "30" or "30000ms")</param>
+    /// <param name="value">Timeout string value</param>
     /// <returns>Timeout value in seconds</returns>
     /// <remarks>
-    /// Converts milliseconds to seconds if "ms" suffix is present.
-    /// Returns 30 seconds as default if parsing fails.
+    /// Supports formats:
+    /// <code>
+    /// "30"      // 30 seconds
+    /// "30000ms" // 30 seconds
+    /// "5000ms"  // 5 seconds
+    /// </code>
+    ///
+    /// > [!NOTE]
+    /// > Returns 30 seconds as default if parsing fails
+    ///
+    /// > [!TIP]
+    /// > Use explicit units (ms) for clarity when specifying milliseconds
     /// </remarks>
     private static int ParseTimeout(string value) =>
         value.EndsWith(value: "ms")
@@ -227,7 +444,20 @@ public class CommonConnectionString
     /// </summary>
     /// <param name="value">String value to parse</param>
     /// <param name="trueValues">Array of strings that represent true value</param>
-    /// <returns>True if value matches any trueValues (case-insensitive), false otherwise</returns>
+    /// <returns>Boolean result of the parsing</returns>
+    /// <remarks>
+    /// Case-insensitive comparison against provided true values.
+    ///
+    /// Example usage:
+    /// <code>
+    /// ParseBooleanValue("yes", "true", "yes", "1")  // returns true
+    /// ParseBooleanValue("no", "true", "yes", "1")   // returns false
+    /// ParseBooleanValue("TRUE", "true")             // returns true
+    /// </code>
+    ///
+    /// > [!TIP]
+    /// > Common true values include: "true", "yes", "1", "on"
+    /// </remarks>
     private static bool ParseBooleanValue(string value, params string[] trueValues) =>
         trueValues.Any(predicate: v =>
             value.Equals(value: v, comparisonType: StringComparison.OrdinalIgnoreCase)
@@ -240,15 +470,55 @@ public class CommonConnectionString
     /// <param name="key">Connection string parameter key (normalized to lowercase)</param>
     /// <param name="value">Connection string parameter value</param>
     /// <remarks>
-    /// Supports various parameter aliases across different database systems:
-    /// - Server/Data Source/Host/Contact Points
-    /// - Database/Initial Catalog/Default Keyspace/Bucket Name
-    /// - User ID/UID/Username/User
+    /// Handles various database connection string parameters with their common aliases:
+    ///
+    /// Server/Host:
+    /// - Server
+    /// - Data Source
+    /// - Host
+    /// - Contact Points
+    ///
+    /// Database:
+    /// - Database
+    /// - Initial Catalog
+    /// - Default Keyspace
+    /// - Bucket Name
+    /// - DatabaseName
+    ///
+    /// Authentication:
+    /// - User ID/UID
+    /// - Username/User
     /// - Password/PWD
     /// - Integrated Security/Trusted Connection
-    /// - Connection Timeout/Connect Timeout/Timeout
-    /// - Min/Max Pool Size variants
+    ///
+    /// Connection Settings:
+    /// - Port
+    /// - Trust Server Certificate
+    /// - Connection/Connect Timeout
+    /// - Application Name
+    ///
+    /// Connection Pooling:
+    /// - Pooling
+    /// - Min/Max Pool Size
+    ///
+    /// Special handling for SQLite:
+    /// - In-memory database (:memory:)
+    /// - File-based database (.db, .sqlite, .sqlite3)
+    ///
+    /// > [!NOTE]
+    /// > All keys are normalized to lowercase before processing
+    ///
+    /// > [!IMPORTANT]
+    /// > For SQLite, the Data Source parameter is treated as the database path
     /// </remarks>
+    /// <example>
+    /// <code>
+    /// var connStr = new CommonConnectionString();
+    /// ProcessKeyValuePair(connStr, key: "server", value: "localhost");
+    /// ProcessKeyValuePair(connStr, key: "database", value: "mydb");
+    /// ProcessKeyValuePair(connStr, key: "user id", value: "admin");
+    /// </code>
+    /// </example>
     private static void ProcessKeyValuePair(CommonConnectionString result, string key, string value)
     {
         switch (key)
@@ -343,22 +613,38 @@ public class CommonConnectionString
     /// <summary>
     /// Parses a connection string into a CommonConnectionString object.
     /// </summary>
-    /// <param name="connectionString">The connection string to parse.</param>
-    /// <returns>A new CommonConnectionString instance populated with the parsed values.</returns>
+    /// <param name="connectionString">The connection string to parse</param>
+    /// <returns>A new <see cref="CommonConnectionString"/> instance populated with the parsed values</returns>
     /// <remarks>
-    /// Supports common connection string formats with various key aliases:
-    /// - Server/Data Source/Host
-    /// - Database/Initial Catalog
-    /// - User ID/UID/Username
-    /// - Password/PWD
-    /// - Port
-    /// - Integrated Security
-    /// - Trust Server Certificate
-    /// - Connection/Connect Timeout
-    /// - Application Name
-    /// - Pooling
-    /// - Min/Max Pool Size
+    /// Supports multiple connection string formats:
+    ///
+    /// Standard Key-Value:
+    /// <code>
+    /// "Server=localhost;Database=mydb;User ID=user;Password=pass;"
+    /// </code>
+    ///
+    /// MongoDB URL:
+    /// <code>
+    /// "mongodb://user:pass@localhost:27017/mydb"
+    /// </code>
+    ///
+    /// Oracle TNS:
+    /// <code>
+    /// "(DESCRIPTION=(HOST=myhost)(PORT=1521)(SERVICE_NAME=myservice));User Id=user;Password=pass;"
+    /// </code>
+    ///
+    /// > [!NOTE]
+    /// > Special handling for MongoDB and Oracle TNS formats
+    ///
+    /// > [!IMPORTANT]
+    /// > All key-value pairs are normalized and processed case-insensitively
     /// </remarks>
+    /// <example>
+    /// <code>
+    /// var conn = new CommonConnectionString();
+    /// var result = conn.FromConnectionString("Server=localhost;Database=mydb;User ID=user;Password=pass;");
+    /// </code>
+    /// </example>
     public virtual CommonConnectionString FromConnectionString(string connectionString)
     {
         if (connectionString.StartsWith(value: "mongodb://"))
@@ -424,14 +710,24 @@ public class CommonConnectionString
     /// <param name="mode">Access mode (default: "ReadWrite"). Available values: ReadOnly, ReadWrite, Memory</param>
     /// <returns>A formatted SQLite connection string.</returns>
     /// <remarks>
-    /// For more details about SQLite connection strings, see:
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings"/>
+    /// Generates a connection string for SQLite database with specified cache and access modes.
     ///
-    /// Cache modes documentation:
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache"/>
+    /// Example formats:
+    /// <code>
+    /// "Data Source=/path/to/db.sqlite;Cache=Shared;Mode=ReadWrite"
+    /// "Data Source=:memory:;Cache=Private;Mode=Memory"
+    /// </code>
     ///
-    /// Access modes documentation:
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#mode"/>
+    /// > [!IMPORTANT]
+    /// > Paths are automatically converted to use forward slashes
+    ///
+    /// > [!NOTE]
+    /// > Relative paths are resolved against the current directory
+    ///
+    /// For more details:
+    /// - <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings"/>
+    /// - <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache"/>
+    /// - <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#mode"/>
     /// </remarks>
     public string ToSQLite(string cache = "Shared", string mode = "ReadWrite")
     {
@@ -454,16 +750,26 @@ public class CommonConnectionString
     /// <summary>
     /// Creates an in-memory SQLite connection string.
     /// </summary>
-    /// <param name="cached">Whether to use shared cache (default: true).</param>
-    /// <returns>A formatted in-memory SQLite connection string.</returns>
+    /// <param name="cached">Whether to use shared cache (default: true)</param>
+    /// <returns>A formatted in-memory SQLite connection string</returns>
     /// <remarks>
-    /// For more details about SQLite in-memory databases, see:
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/in-memory-databases"/>
+    /// Creates a connection string for in-memory SQLite database.
     ///
-    /// For more details about SQLite cache modes:
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache"/>
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-size"/>
-    /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache-shared"/>
+    /// Example formats:
+    /// <code>
+    /// "Data Source=:memory:;Mode=Memory;Cache=Shared"   // cached=true
+    /// "Data Source=:memory:;Mode=Memory;Cache=Private"  // cached=false
+    /// </code>
+    ///
+    /// > [!NOTE]
+    /// > Shared cache allows multiple connections to access the same in-memory database
+    ///
+    /// > [!TIP]
+    /// > Use shared cache when you need to access the same in-memory database from multiple connections
+    ///
+    /// For more details:
+    /// - <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/in-memory-databases"/>
+    /// - <see href="https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings#cache"/>
     /// </remarks>
 #pragma warning disable CA1822 // Mark members as static
     public string ToSQLiteInMemory(bool cached = true) =>
@@ -481,9 +787,25 @@ public class CommonConnectionString
     /// <summary>
     /// Converts to MySQL connection string format.
     /// </summary>
-    /// <returns>A formatted MySQL connection string.</returns>
+    /// <returns>A formatted MySQL connection string</returns>
     /// <remarks>
-    /// For more details about MySQL connection strings, see:
+    /// Generates a connection string for MySQL database with standard options.
+    ///
+    /// Example formats:
+    /// <code>
+    /// "Server=localhost;Port=3306;Database=mydb;User ID=user;Password=pass;SSL Mode=Required"
+    /// "Server=db.example.com;Database=mydb;User ID=user;Password=pass;Connection Timeout=30"
+    /// </code>
+    ///
+    /// Default settings:
+    /// - SSL Mode: Required
+    /// - Allow User Variables: true
+    /// - Convert Zero Datetime: true
+    ///
+    /// > [!NOTE]
+    /// > Empty or default values are automatically filtered out
+    ///
+    /// For more details:
     /// <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-connection-options.html"/>
     /// </remarks>
     public string ToMySQL() =>
@@ -511,7 +833,29 @@ public class CommonConnectionString
     /// </summary>
     /// <returns>A formatted SQL Server connection string.</returns>
     /// <remarks>
-    /// For more details about SQL Server connection strings, see:
+    /// Generates a connection string for SQL Server with platform-specific authentication.
+    ///
+    /// Example formats:
+    /// <code>
+    /// // Windows Authentication
+    /// "Server=localhost;Database=mydb;Integrated Security=SSPI;TrustServerCertificate=true"
+    ///
+    /// // SQL Authentication
+    /// "Server=localhost,1433;Database=mydb;User ID=user;Password=pass;TrustServerCertificate=true"
+    /// </code>
+    ///
+    /// > [!NOTE]
+    /// > Uses SSPI for Windows authentication and standard security for other platforms
+    ///
+    /// > [!IMPORTANT]
+    /// > Port is appended to Server using comma separator (SQL Server specific)
+    ///
+    /// Default settings:
+    /// - MultipleActiveResultSets=true
+    /// - TrustServerCertificate (configurable)
+    /// - Connection pooling enabled
+    ///
+    /// For more details:
     /// <see href="https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/connection-string-syntax#sql-server-connection-strings"/>
     /// </remarks>
     public string ToSQLServer() =>
@@ -599,11 +943,64 @@ public class CommonConnectionString
         );
 
     /// <summary>
+    /// Converts to Oracle connection string format using TNS format.
+    /// </summary>
+    /// <returns>A formatted Oracle connection string.</returns>
+    /// <remarks>
+    /// Generates a TNS-style connection string for Oracle databases.
+    ///
+    /// Example format:
+    /// <code>
+    /// "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=myhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=myservice)));User Id=user;Password=pass;Pooling=true"
+    /// </code>
+    ///
+    /// Default settings:
+    /// - Protocol: TCP
+    /// - Pooling: enabled
+    /// - Statement Cache Size: 20
+    ///
+    /// > [!NOTE]
+    /// > Uses standard TNS descriptor format for compatibility
+    ///
+    /// For more details:
+    /// <see href="https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/connection-string-syntax#oracle-connection-strings"/>
+    /// </remarks>
+    public string ToOracleTns() =>
+        string.Join<string>(
+            separator: ";",
+            values:
+            [
+                $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={Server})(PORT={Port}))(CONNECT_DATA=(SERVICE_NAME={Database})))",
+                $"User Id={Username}",
+                $"Password={Password}",
+                "Pooling=true",
+                "Statement Cache Size=20"
+            ]
+        );
+
+    /// <summary>
     /// Converts to MongoDB connection string format.
     /// </summary>
     /// <returns>A formatted MongoDB connection string.</returns>
     /// <remarks>
-    /// For more details about MongoDB connection strings, see:
+    /// Generates a MongoDB URI connection string with standard options.
+    ///
+    /// Example formats:
+    /// <code>
+    /// "mongodb://user:pass@localhost:27017/mydb?retryWrites=true&amp;w=majority&amp;ssl=true"
+    /// "mongodb://localhost:27017/mydb?retryWrites=true&amp;w=majority&amp;ssl=true"
+    /// </code>
+    ///
+    /// Default settings:
+    /// - retryWrites=true
+    /// - w=majority
+    /// - ssl=true
+    /// - connectTimeoutMS (based on ConnectionTimeout)
+    ///
+    /// > [!NOTE]
+    /// > Username and password are automatically URL-encoded
+    ///
+    /// For more details:
     /// <see href="https://www.mongodb.com/docs/manual/reference/connection-string/"/>
     /// </remarks>
     public string ToMongoDB()
@@ -627,7 +1024,22 @@ public class CommonConnectionString
     /// </summary>
     /// <returns>A formatted Cassandra connection string.</returns>
     /// <remarks>
-    /// For more details about Cassandra connection strings, see:
+    /// Generates a connection string for Cassandra with standard security options.
+    ///
+    /// Example formats:
+    /// <code>
+    /// "Contact Points=localhost;Port=9042;Default Keyspace=mykeyspace;User ID=user;Password=pass;SSL=true"
+    /// "Contact Points=cassandra.example.com;Default Keyspace=mykeyspace;SSL=true"
+    /// </code>
+    ///
+    /// Default settings:
+    /// - SSL: enabled
+    /// - Connection Timeout: 10 seconds
+    ///
+    /// > [!NOTE]
+    /// > Empty or default values are automatically filtered out
+    ///
+    /// For more details:
     /// <see href="https://docs.datastax.com/en/developer/csharp-driver/3.0/features/connection-pooling/"/>
     /// </remarks>
     public string ToCassandra() =>
@@ -650,7 +1062,23 @@ public class CommonConnectionString
     /// </summary>
     /// <returns>A formatted Couchbase connection string.</returns>
     /// <remarks>
-    /// For more details about Couchbase connection strings, see:
+    /// Generates a Couchbase connection string with standard options.
+    ///
+    /// Example formats:
+    /// <code>
+    /// "couchbase://localhost?connection_timeout=30000&amp;bucket_name=default&amp;ssl=true"
+    /// "couchbase://db.example.com?connection_timeout=30000&amp;bucket_name=mybucket&amp;ssl=true&amp;username=user&amp;password=pass"
+    /// </code>
+    ///
+    /// Default settings:
+    /// - ssl=true
+    /// - connection_timeout (in milliseconds)
+    /// - bucket_name (from Database property)
+    ///
+    /// > [!NOTE]
+    /// > Username and password are automatically URL-encoded and only included if username is provided
+    ///
+    /// For more details:
     /// <see href="https://docs.couchbase.com/dotnet-sdk/current/ref/connection-string.html"/>
     /// </remarks>
     public string ToCouchbase()
