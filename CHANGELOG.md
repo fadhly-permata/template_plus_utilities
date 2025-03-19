@@ -2,6 +2,38 @@
 
 Semua perubahan penting pada proyek ini akan didokumentasikan dalam file ini.
 
+## [1.0.4*] - 2024-03-17
+
+### Ditambahkan
+- Peningkatan dokumentasi XML:
+  * Penambahan contoh kode untuk setiap method
+  * Penambahan dokumentasi untuk parameter dan return values
+  * Implementasi alerts (NOTE, TIP, IMPORTANT, CAUTION, WARNING)
+  * Dukungan untuk DocFX rendering
+- Implementasi null safety dan nullable types:
+  * Penerapan pada seluruh codebase
+  * Validasi null checks
+  * Penggunaan operator null-coalescing
+
+### Diubah
+- Optimasi method chaining:
+  * Refactoring untuk mendukung fluent interface
+  * Peningkatan return types untuk method chaining
+- Peningkatan collection handling:
+  * Implementasi collection expressions
+  * Optimasi collection initialization
+- Standarisasi penamaan parameter:
+  * Penambahan nama parameter pada method calls
+  * Konsistensi penamaan di seluruh codebase
+
+### File yang Diubah
+- IDC.Template/Controllers/UsersController.cs
+- IDC.Template/Controllers/DemoController.Language.cs
+- IDC.Template/Controllers/DemoController.Cache.cs
+- IDC.Template/Utilities/DI/AppSettingsHandler.cs
+- IDC.Template/Utilities/DI/AppConfigsHandler.cs
+- IDC.Utilities/Models/API/APIResponse.cs
+
 ## [1.0.3] - 2024-03-17
 
 ### Ditambahkan
