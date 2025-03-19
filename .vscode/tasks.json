@@ -39,6 +39,15 @@
                 "isDefault": true
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Generate Documentation",
+            "type": "shell",
+            "command": "cd /media/fadhly/Data/DOCS/Research/DocFxV3 && chmod +x run.sh && ./run.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
         }
     ]
 }

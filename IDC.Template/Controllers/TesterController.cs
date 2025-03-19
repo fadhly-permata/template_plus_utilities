@@ -1,4 +1,3 @@
-using IDC.Template.Utilities.Middlewares;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +8,7 @@ namespace IDC.Template.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
+    [Tags(tags: "Tester")]
     public class TesterController : ControllerBase
     {
         /// <summary>

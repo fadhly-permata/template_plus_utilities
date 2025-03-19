@@ -4,6 +4,20 @@ using IDC.Utilities.Models.Data;
 
 internal partial class Program
 {
+    /// <summary>
+    /// Configures system logging for the application.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure services for.</param>
+    /// <remarks>
+    /// This method sets up a singleton instance of <see cref="SystemLogging"/> with configuration
+    /// parameters retrieved from application settings.
+    ///
+    /// Example:
+    /// <code>
+    /// var builder = WebApplication.CreateBuilder(args);
+    /// ConfigureSystemLogging(builder);
+    /// </code>
+    /// </remarks>
     private static void ConfigureSystemLogging(WebApplicationBuilder builder) =>
         builder.Services.AddSingleton(_ =>
         {
@@ -26,6 +40,20 @@ internal partial class Program
             return _systemLogging;
         });
 
+    /// <summary>
+    /// Configures caching for the application.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure services for.</param>
+    /// <remarks>
+    /// This method adds a singleton instance of <see cref="Caching"/> to the service collection
+    /// if caching is enabled in the application configuration.
+    ///
+    /// Example:
+    /// <code>
+    /// var builder = WebApplication.CreateBuilder(args);
+    /// ConfigureCaching(builder);
+    /// </code>
+    /// </remarks>
     private static void ConfigureCaching(WebApplicationBuilder builder)
     {
         if (_appConfigs.Get(path: "DependencyInjection.Caching.Enable", defaultValue: false))
@@ -37,6 +65,20 @@ internal partial class Program
             ));
     }
 
+    /// <summary>
+    /// Configures SQLite for the application.
+    /// </summary>
+    /// <param name="builder">The <see cref="WebApplicationBuilder"/> to configure services for.</param>
+    /// <remarks>
+    /// This method adds a scoped instance of <see cref="SQLiteHelper"/> to the service collection
+    /// if SQLite is enabled in the application configuration. It supports both in-memory and file-based SQLite databases.
+    ///
+    /// Example:
+    /// <code>
+    /// var builder = WebApplication.CreateBuilder(args);
+    /// ConfigureSQLite(builder);
+    /// </code>
+    /// </remarks>
     private static void ConfigureSQLite(WebApplicationBuilder builder)
     {
         if (_appConfigs.Get(path: "DependencyInjection.SQLite", defaultValue: false))

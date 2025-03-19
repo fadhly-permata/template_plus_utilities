@@ -3,44 +3,99 @@ using IDC.Utilities.Extensions;
 namespace IDC.Utilities.Models.API;
 
 /// <summary>
-/// Represents a standardized API response format.
+/// Represents a standardized base API response format with status and message handling capabilities.
 /// </summary>
 /// <remarks>
-/// Provides a consistent structure for API responses with status and message handling capabilities.
-/// Supports method chaining for fluent configuration.
+/// Provides a consistent structure for API responses with built-in support for:
+/// - Status management
+/// - Message handling
+/// - Exception integration
+/// - Localization support
+/// - Logging capabilities
+///
+/// > [!IMPORTANT]
+/// > All methods follow the fluent interface pattern for method chaining.
+///
+/// > [!NOTE]
+/// > This class serves as the base for all API responses and can be extended for specific use cases.
+///
+/// > [!TIP]
+/// > For responses with data payload, use <see cref="APIResponseData{T}"/> instead.
 /// </remarks>
 /// <example>
+/// Basic usage:
 /// <code>
 /// var response = new APIResponse()
-///     .ChangeStatus("Failed")
-///     .ChangeMessage("Operation could not be completed");
+///     .ChangeStatus(status: "Success")
+///     .ChangeMessage(message: "Operation completed successfully");
+/// </code>
+///
+/// With error handling:
+/// <code>
+/// try
+/// {
+///     // Some operation
+///     return new APIResponse()
+///         .ChangeStatus(status: "Success");
+/// }
+/// catch (Exception ex)
+/// {
+///     return new APIResponse()
+///         .ChangeStatus(status: "Error")
+///         .ChangeMessage(exception: ex, logging: _logger);
+/// }
 /// </code>
 /// </example>
 public class APIResponse
 {
-    /// <summary>Gets or sets the status.</summary>
-    /// <value>The status.</value>
-    /// <remarks>The default value is "Success".</remarks>
+    /// <summary>
+    /// Gets or sets the status of the API response.
+    /// </summary>
+    /// <value>
+    /// A string representing the current status. Defaults to "Success".
+    /// </value>
+    /// <remarks>
+    /// > [!NOTE]
+    /// > The setter is internal to maintain encapsulation.
+    ///
+    /// > [!TIP]
+    /// > Common status values include: "Success", "Error", "Warning", "Info"
+    /// </remarks>
     public string? Status { get; internal set; } = "Success";
 
-    /// <summary>Gets or sets the message.</summary>
-    /// <value>The message.</value>
-    /// <remarks>The default value is "API processing is done.".</remarks>
+    /// <summary>
+    /// Gets or sets the message associated with the API response.
+    /// </summary>
+    /// <value>
+    /// A string containing the response message. Defaults to "API processing has been completed."
+    /// </value>
+    /// <remarks>
+    /// > [!NOTE]
+    /// > The setter is internal to maintain encapsulation.
+    ///
+    /// > [!TIP]
+    /// > Use <see cref="ChangeMessage"/> methods for fluent modifications.
+    /// </remarks>
     public string? Message { get; internal set; } = "API processing has been completed.";
 
     /// <summary>
-    /// Changes the status of the API response using a string value.
+    /// Changes the status of the API response.
     /// </summary>
     /// <param name="status">The new status to set.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
+    /// <returns>The current instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when status is null.</exception>
     /// <remarks>
-    /// This method allows changing the status using a string value.
+    /// > [!IMPORTANT]
+    /// > The status cannot be null.
+    ///
+    /// > [!TIP]
+    /// > Use consistent status values across your application.
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeStatus(status: "Failed");
+    /// var response = new APIResponse()
+    ///     .ChangeStatus(status: "Processing")
+    ///     .ChangeStatus(status: "Completed");
     /// </code>
     /// </example>
     public virtual APIResponse ChangeStatus(string? status)
@@ -50,19 +105,27 @@ public class APIResponse
     }
 
     /// <summary>
-    /// Changes the status of the API response using a Language instance.
+    /// Changes the status using a localized message.
     /// </summary>
-    /// <param name="language">The Language instance to get the status from.</param>
-    /// <param name="key">The key to lookup the status message.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when language or key is null.</exception>
+    /// <param name="language">The language instance for translation.</param>
+    /// <param name="key">The language key to lookup.</param>
+    /// <returns>The current instance for method chaining.</returns>
     /// <remarks>
-    /// This method allows changing the status using a Language instance and key lookup.
+    /// Enables internationalization support for status messages.
+    ///
+    /// > [!NOTE]
+    /// > The language key must exist in the language configuration.
+    ///
+    /// > [!TIP]
+    /// > Use consistent key patterns like "api.status.success".
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeStatus(language: languageInstance, key: "api.status.status_failed");
+    /// var response = new APIResponse()
+    ///     .ChangeStatus(
+    ///         language: languageInstance,
+    ///         key: "api.status.processing"
+    ///     );
     /// </code>
     /// </example>
     public virtual APIResponse ChangeStatus(Language language, string key)
@@ -72,18 +135,23 @@ public class APIResponse
     }
 
     /// <summary>
-    /// Changes the message of the API response using a string value.
+    /// Changes the message of the API response.
     /// </summary>
     /// <param name="message">The new message to set.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
+    /// <returns>The current instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when message is null.</exception>
     /// <remarks>
-    /// This method allows changing the message using a string value.
+    /// > [!IMPORTANT]
+    /// > The message cannot be null.
+    ///
+    /// > [!TIP]
+    /// > Use clear and concise messages that describe the operation result.
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeMessage("Processing completed successfully");
+    /// var response = new APIResponse()
+    ///     .ChangeMessage(message: "User authentication successful")
+    ///     .ChangeMessage(message: "Session initialized");
     /// </code>
     /// </example>
     public virtual APIResponse ChangeMessage(string? message)
@@ -93,18 +161,27 @@ public class APIResponse
     }
 
     /// <summary>
-    /// Changes the message of the API response using a Language instance.
+    /// Changes the message using a localized message.
     /// </summary>
-    /// <param name="language">The Language instance to get the message from.</param>
-    /// <param name="key">The key to lookup the message.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
+    /// <param name="language">The language instance for translation.</param>
+    /// <param name="key">The language key to lookup.</param>
+    /// <returns>The current instance for method chaining.</returns>
     /// <remarks>
-    /// This method allows changing the message using a Language instance and key lookup.
+    /// Enables internationalization support for response messages.
+    ///
+    /// > [!NOTE]
+    /// > Falls back to the key if translation is not found.
+    ///
+    /// > [!TIP]
+    /// > Use hierarchical keys like "api.messages.auth.success".
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeMessage(language: languageInstance, key: "api.messages.success");
+    /// var response = new APIResponse()
+    ///     .ChangeMessage(
+    ///         language: languageInstance,
+    ///         key: "api.messages.user.created"
+    ///     );
     /// </code>
     /// </example>
     public virtual APIResponse ChangeMessage(Language language, string key)
@@ -114,42 +191,79 @@ public class APIResponse
     }
 
     /// <summary>
-    /// Changes the message of the API response using an exception.
+    /// Changes the message using exception details.
     /// </summary>
-    /// <param name="exception">The exception to extract the message from.</param>
-    /// <param name="includeStackTrace">Whether to include the stack trace in the message.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
+    /// <param name="exception">The exception to extract message from.</param>
+    /// <param name="includeStackTrace">Whether to include stack trace details.</param>
+    /// <returns>The current instance for method chaining.</returns>
     /// <remarks>
-    /// This method sets the message to the exception details and outputs it to the console.
+    /// Automatically formats exception details into a readable message.
+    ///
+    /// > [!WARNING]
+    /// > Including stack trace in production may expose sensitive information.
+    ///
+    /// > [!NOTE]
+    /// > The message is also output to the console for debugging.
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeMessage(exception: ex, includeStackTrace: true);
+    /// try
+    /// {
+    ///     throw new InvalidOperationException("Database connection failed");
+    /// }
+    /// catch (Exception ex)
+    /// {
+    ///     var response = new APIResponse()
+    ///         .ChangeStatus(status: "Error")
+    ///         .ChangeMessage(
+    ///             exception: ex,
+    ///             includeStackTrace: false
+    ///         );
+    /// }
     /// </code>
     /// </example>
     public virtual APIResponse ChangeMessage(Exception exception, bool includeStackTrace = false)
     {
         Message = exception.GetExceptionDetails(includeStackTrace: includeStackTrace);
         Console.WriteLine(value: Message);
-
         return this;
     }
 
     /// <summary>
-    /// Changes the message of the API response using an exception and logs it.
+    /// Changes the message using exception details and logs it.
     /// </summary>
-    /// <param name="exception">The exception to extract the message from.</param>
+    /// <param name="exception">The exception to extract message from.</param>
     /// <param name="logging">The logging instance to use.</param>
-    /// <param name="includeStackTrace">Whether to include the stack trace in the message.</param>
-    /// <returns>The current APIResponse instance for method chaining.</returns>
+    /// <param name="includeStackTrace">Whether to include stack trace details.</param>
+    /// <returns>The current instance for method chaining.</returns>
     /// <remarks>
-    /// This method sets the message to the exception details and logs it using the provided logging instance.
+    /// Combines exception handling with logging capabilities.
+    ///
+    /// > [!IMPORTANT]
+    /// > This method will log the exception before setting the message.
+    ///
+    /// > [!TIP]
+    /// > Use this method when you need both error reporting and logging.
+    ///
+    /// > [!CAUTION]
+    /// > Ensure proper log level configuration in production.
     /// </remarks>
     /// <example>
     /// <code>
-    /// var response = new APIResponse();
-    /// response.ChangeMessage(exception: ex, logging: logger, includeStackTrace: true);
+    /// try
+    /// {
+    ///     throw new SecurityException("Invalid authentication token");
+    /// }
+    /// catch (Exception ex)
+    /// {
+    ///     var response = new APIResponse()
+    ///         .ChangeStatus(status: "Error")
+    ///         .ChangeMessage(
+    ///             exception: ex,
+    ///             logging: _logger,
+    ///             includeStackTrace: false
+    ///         );
+    /// }
     /// </code>
     /// </example>
     public virtual APIResponse ChangeMessage(
@@ -160,7 +274,6 @@ public class APIResponse
     {
         Message = exception.GetExceptionDetails(includeStackTrace: includeStackTrace);
         logging.LogError(message: Message);
-
         return this;
     }
 }
