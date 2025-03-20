@@ -7,29 +7,42 @@ namespace IDC.Utilities.Data;
 public sealed partial class MongoHelper
 {
     /// <summary>
-    /// Inserts a single document into the specified collection.
+    /// Inserts a single document into the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="document">The document to insert.</param>
-    /// <param name="insertedId">The ID of the inserted document.</param>
-    /// <returns>The current MongoHelper instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during insertion.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="document">The document to be inserted as a JObject.</param>
+    /// <param name="insertedId">The unique identifier of the inserted document.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
     /// <remarks>
-    /// This method inserts a single document into the specified MongoDB collection.
-    /// It converts the JObject to a BsonDocument before insertion.
-    /// The inserted document's ID is returned via the out parameter.
-    /// <para>
-    /// Example:
+    /// Performs a single document insertion operation with automatic ID generation.
+    ///
+    /// > [!IMPORTANT]
+    /// > The document must not contain an '_id' field as MongoDB will generate one automatically.
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and uses the current session if transaction is active.
+    ///
+    /// Example usage:
     /// <code>
-    /// var document = new JObject { ["name"] = "John Doe", ["age"] = 30 };
-    /// mongoHelper.InsertOne("users", document, out string id);
-    /// Console.WriteLine($"Inserted document ID: {id}");
+    /// var document = new JObject
+    /// {
+    ///     ["name"] = "John Doe",
+    ///     ["email"] = "john@example.com",
+    ///     ["age"] = 30,
+    ///     ["isActive"] = true,
+    ///     ["tags"] = new JArray { "user", "customer" }
+    /// };
+    ///
+    /// mongoHelper
+    ///     .InsertOne("users", document: document, out string id)
+    ///     .CommitTransaction();
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOne.htm">MongoDB.Driver.IMongoCollection.InsertOne Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/">MongoDB insertOne Documentation</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public MongoHelper InsertOne(string collection, JObject document, out string insertedId)
     {
         try
@@ -48,31 +61,55 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Updates a single document in the specified collection.
+    /// Updates a single document in the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to identify the document to update.</param>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the document to update.</param>
     /// <param name="update">The update operations to apply.</param>
-    /// <param name="modifiedCount">The number of documents modified.</param>
-    /// <returns>The current MongoHelper instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during update.</exception>
+    /// <param name="modifiedCount">The number of documents that were modified.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
     /// <remarks>
-    /// This method updates a single document in the specified MongoDB collection that matches the given filter.
-    /// It converts both the filter and update JObjects to BsonDocuments before performing the update.
-    /// The number of modified documents is returned via the out parameter.
-    /// <para>
-    /// Example:
+    /// Updates the first document that matches the specified filter criteria.
+    ///
+    /// > [!IMPORTANT]
+    /// > The update document must include valid MongoDB update operators (e.g., $set, $unset).
+    ///
+    /// > [!WARNING]
+    /// > Without update operators, the operation will replace the entire document.
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and uses the current session if transaction is active.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// var update = new JObject { ["$set"] = new JObject { ["age"] = 31 } };
-    /// mongoHelper.UpdateOne("users", filter, update, out long count);
-    /// Console.WriteLine($"Modified {count} document(s)");
+    /// var filter = new JObject
+    /// {
+    ///     ["email"] = "john@example.com"
+    /// };
+    ///
+    /// var update = new JObject
+    /// {
+    ///     ["$set"] = new JObject
+    ///     {
+    ///         ["age"] = 31,
+    ///         ["lastUpdated"] = DateTime.UtcNow
+    ///     },
+    ///     ["$push"] = new JObject
+    ///     {
+    ///         ["tags"] = "premium"
+    ///     }
+    /// };
+    ///
+    /// mongoHelper
+    ///     .UpdateOne("users", filter: filter, update: update, out long count)
+    ///     .CommitTransaction();
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOne.htm">MongoDB.Driver.IMongoCollection.UpdateOne Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateOne/">MongoDB updateOne Documentation</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public MongoHelper UpdateOne(
         string collection,
         JObject filter,
@@ -101,29 +138,45 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Deletes a single document from the specified collection.
+    /// Deletes a single document from the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to identify the document to delete.</param>
-    /// <param name="deletedCount">The number of documents deleted.</param>
-    /// <returns>The current MongoHelper instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during deletion.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the document to delete.</param>
+    /// <param name="deletedCount">The number of documents that were deleted.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
     /// <remarks>
-    /// This method deletes a single document from the specified MongoDB collection that matches the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the deletion.
-    /// The number of deleted documents is returned via the out parameter.
-    /// <para>
-    /// Example:
+    /// Deletes the first document that matches the specified filter criteria.
+    ///
+    /// > [!CAUTION]
+    /// > This operation is irreversible. Consider using soft delete patterns for critical data.
+    ///
+    /// > [!TIP]
+    /// > For better performance with known _id, use: `new JObject { ["_id"] = ObjectId.Parse(id) }`
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and uses the current session if transaction is active.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// mongoHelper.DeleteOne("users", filter, out long count);
-    /// Console.WriteLine($"Deleted {count} document(s)");
+    /// var filter = new JObject
+    /// {
+    ///     ["$or"] = new JArray
+    ///     {
+    ///         new JObject { ["email"] = "john@example.com" },
+    ///         new JObject { ["username"] = "johndoe" }
+    ///     }
+    /// };
+    ///
+    /// mongoHelper
+    ///     .DeleteOne("users", filter: filter, out long count)
+    ///     .CommitTransaction();
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOne.htm">MongoDB.Driver.IMongoCollection.DeleteOne Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteOne/">MongoDB deleteOne Documentation</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public MongoHelper DeleteOne(string collection, JObject filter, out long deletedCount)
     {
         try
@@ -143,32 +196,46 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Finds documents in the specified collection that match the given filter.
+    /// Finds documents in the specified MongoDB collection based on a filter criteria.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to apply to the query.</param>
-    /// <param name="results">The list of documents that match the filter.</param>
-    /// <returns>The current MongoHelper instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the query.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify matching documents.</param>
+    /// <param name="results">The list of matching documents as JObjects.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
     /// <remarks>
-    /// This method finds all documents in the specified MongoDB collection that match the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the query.
-    /// The results are returned as a list of JObjects via the out parameter.
-    /// <para>
-    /// Example:
+    /// Retrieves all documents matching the specified filter criteria.
+    ///
+    /// > [!TIP]
+    /// > Use pagination for large result sets to improve performance.
+    ///
+    /// > [!IMPORTANT]
+    /// > The filter must use valid MongoDB query operators (e.g., $eq, $gt, $in).
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and uses the current session if transaction is active.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["age"] = new JObject { ["$gt"] = 30 } };
-    /// mongoHelper.Find("users", filter, out List&lt;JObject&gt; results);
-    /// foreach (var user in results)
+    /// var filter = new JObject
     /// {
-    ///     Console.WriteLine($"Found user: {user["name"]}");
-    /// }
+    ///     ["age"] = new JObject { ["$gte"] = 21 },
+    ///     ["status"] = "active",
+    ///     ["tags"] = new JObject
+    ///     {
+    ///         ["$in"] = new JArray { "premium", "vip" }
+    ///     }
+    /// };
+    ///
+    /// mongoHelper
+    ///     .Find("users", filter: filter, out List&lt;JObject&gt; users)
+    ///     .CommitTransaction();
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_Find.htm">MongoDB.Driver.IMongoCollection.Find Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/query/">MongoDB Query Operators</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/reading/">MongoDB C# Driver Reading Documentation</seealso>
     public MongoHelper Find(string collection, JObject filter, out List<JObject> results)
     {
         try
@@ -190,36 +257,49 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Finds a single document in the specified collection that matches the given filter.
+    /// Finds a single document in the specified MongoDB collection based on a filter criteria.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to apply to the query.</param>
-    /// <param name="result">The matching document, or null if no match is found.</param>
-    /// <returns>The current MongoHelper instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the query.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the matching document.</param>
+    /// <param name="result">The matching document as JObject, or null if no match found.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
     /// <remarks>
-    /// This method finds a single document in the specified MongoDB collection that matches the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the query.
-    /// The result is returned as a JObject (or null if no match is found) via the out parameter.
-    /// <para>
-    /// Example:
+    /// Retrieves the first document that matches the specified filter criteria.
+    ///
+    /// > [!TIP]
+    /// > For exact matches using _id, use: `new JObject { ["_id"] = ObjectId.Parse(id) }`
+    ///
+    /// > [!NOTE]
+    /// > Returns null when no matching document is found.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// mongoHelper.FindOne("users", filter, out JObject? user);
-    /// if (user != null)
+    /// var filter = new JObject
     /// {
-    ///     Console.WriteLine($"Found user: {user["name"]}, Age: {user["age"]}");
-    /// }
-    /// else
-    /// {
-    ///     Console.WriteLine("User not found");
-    /// }
+    ///     ["$or"] = new JArray
+    ///     {
+    ///         new JObject { ["email"] = "john@example.com" },
+    ///         new JObject
+    ///         {
+    ///             ["phone"] = new JObject
+    ///             {
+    ///                 ["$regex"] = "^\\+1-555-",
+    ///                 ["$options"] = "i"
+    ///             }
+    ///         }
+    ///     }
+    /// };
+    ///
+    /// mongoHelper
+    ///     .FindOne("users", filter: filter, out JObject? user)
+    ///     .CommitTransaction();
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_Find.htm">MongoDB.Driver.IMongoCollection.Find Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/query/">MongoDB Query Operators</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/reading/">MongoDB C# Driver Reading Documentation</seealso>
     public MongoHelper FindOne(string collection, JObject filter, out JObject? result)
     {
         try
@@ -241,29 +321,54 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously inserts a single document into the specified collection.
+    /// Asynchronously inserts a single document into the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="document">The document to insert.</param>
-    /// <param name="callback">An optional callback action to be invoked with the inserted document's ID.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the inserted document's ID.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during insertion.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="document">The document to insert as a JObject.</param>
+    /// <param name="callback">Optional callback receiving the inserted document's ID.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>A tuple containing the helper instance and inserted document's ID.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     /// <remarks>
-    /// This method asynchronously inserts a single document into the specified MongoDB collection.
-    /// It converts the JObject to a BsonDocument before insertion.
-    /// <para>
-    /// Example:
+    /// Performs an asynchronous document insertion with automatic ID generation.
+    ///
+    /// > [!IMPORTANT]
+    /// > The document must not contain an '_id' field.
+    ///
+    /// > [!NOTE]
+    /// > Automatically starts a new session if none exists.
+    ///
+    /// Example usage:
     /// <code>
-    /// var document = new JObject { ["name"] = "John Doe", ["age"] = 30 };
-    /// var (helper, id) = await mongoHelper.InsertOneAsync("users", document);
-    /// Console.WriteLine($"Inserted document ID: {id}");
+    /// var document = new JObject
+    /// {
+    ///     ["name"] = "John Doe",
+    ///     ["profile"] = new JObject
+    ///     {
+    ///         ["age"] = 30,
+    ///         ["email"] = "john@example.com"
+    ///     },
+    ///     ["preferences"] = new JObject
+    ///     {
+    ///         ["theme"] = "dark",
+    ///         ["notifications"] = true
+    ///     },
+    ///     ["lastLogin"] = DateTime.UtcNow
+    /// };
+    ///
+    /// var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+    /// var (helper, id) = await mongoHelper.InsertOneAsync(
+    ///     collection: "users",
+    ///     document: document,
+    ///     callback: insertedId => Console.WriteLine($"Inserted: {insertedId}"),
+    ///     cancellationToken: cts.Token
+    /// );
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm">MongoDB.Driver.IMongoCollection.InsertOneAsync Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/">MongoDB insertOne Documentation</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public async Task<(MongoHelper helper, string insertedId)> InsertOneAsync(
         string collection,
         JObject document,
@@ -298,31 +403,61 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously updates a single document in the specified collection.
+    /// Asynchronously updates a single document in the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to identify the document to update.</param>
-    /// <param name="update">The update operations to apply.</param>
-    /// <param name="callback">An optional callback action to be invoked with the number of modified documents.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the number of documents modified.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during update.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the document to update.</param>
+    /// <param name="update">The update operations to apply using MongoDB update operators.</param>
+    /// <param name="callback">Optional callback receiving the number of modified documents.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>A tuple containing the helper instance and count of modified documents.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     /// <remarks>
-    /// This method asynchronously updates a single document in the specified MongoDB collection that matches the given filter.
-    /// It converts both the filter and update JObjects to BsonDocuments before performing the update.
-    /// <para>
-    /// Example:
+    /// Performs an atomic update operation on a single document.
+    ///
+    /// > [!IMPORTANT]
+    /// > Update operations must use valid MongoDB operators (e.g., $set, $inc, $push).
+    ///
+    /// > [!NOTE]
+    /// > Returns modifiedCount=0 if no document matches the filter.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// var update = new JObject { ["$set"] = new JObject { ["age"] = 31 } };
-    /// var (helper, count) = await mongoHelper.UpdateOneAsync("users", filter, update);
-    /// Console.WriteLine($"Modified {count} document(s)");
+    /// var filter = new JObject
+    /// {
+    ///     ["email"] = "john@example.com",
+    ///     ["status"] = "active"
+    /// };
+    ///
+    /// var update = new JObject
+    /// {
+    ///     ["$set"] = new JObject
+    ///     {
+    ///         ["lastLogin"] = DateTime.UtcNow,
+    ///         ["profile.verified"] = true
+    ///     },
+    ///     ["$inc"] = new JObject
+    ///     {
+    ///         ["loginCount"] = 1
+    ///     },
+    ///     ["$push"] = new JObject
+    ///     {
+    ///         ["loginHistory"] = DateTime.UtcNow
+    ///     }
+    /// };
+    ///
+    /// var (helper, count) = await mongoHelper.UpdateOneAsync(
+    ///     collection: "users",
+    ///     filter: filter,
+    ///     update: update,
+    ///     callback: modifiedCount => Console.WriteLine($"Updated: {modifiedCount} document")
+    /// );
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm">MongoDB.Driver.IMongoCollection.UpdateOneAsync Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/update/">MongoDB Update Operators</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public async Task<(MongoHelper helper, long modifiedCount)> UpdateOneAsync(
         string collection,
         JObject filter,
@@ -360,29 +495,49 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously deletes a single document from the specified collection.
+    /// Asynchronously deletes a single document from the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to identify the document to delete.</param>
-    /// <param name="callback">An optional callback action to be invoked with the number of deleted documents.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the number of documents deleted.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during deletion.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the document to delete.</param>
+    /// <param name="callback">Optional callback receiving the number of deleted documents.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>A tuple containing the helper instance and count of deleted documents.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     /// <remarks>
-    /// This method asynchronously deletes a single document from the specified MongoDB collection that matches the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the deletion.
-    /// <para>
-    /// Example:
+    /// Performs an atomic deletion of a single document.
+    ///
+    /// > [!WARNING]
+    /// > This operation is irreversible. Consider using soft deletes for critical data.
+    ///
+    /// > [!NOTE]
+    /// > Returns deletedCount=0 if no document matches the filter.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// var (helper, count) = await mongoHelper.DeleteOneAsync("users", filter);
-    /// Console.WriteLine($"Deleted {count} document(s)");
+    /// var filter = new JObject
+    /// {
+    ///     ["_id"] = ObjectId.Parse(userId),
+    ///     ["status"] = new JObject
+    ///     {
+    ///         ["$in"] = new JArray { "inactive", "suspended" }
+    ///     }
+    /// };
+    ///
+    /// var (helper, count) = await mongoHelper.DeleteOneAsync(
+    ///     collection: "users",
+    ///     filter: filter,
+    ///     callback: deletedCount =>
+    ///     {
+    ///         if (deletedCount > 0)
+    ///             Console.WriteLine("User successfully deleted");
+    ///     }
+    /// );
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm">MongoDB.Driver.IMongoCollection.DeleteOneAsync Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.deleteOne/">MongoDB deleteOne Documentation</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public async Task<(MongoHelper helper, long deletedCount)> DeleteOneAsync(
         string collection,
         JObject filter,
@@ -418,33 +573,53 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously finds documents in the specified collection that match the given filter.
+    /// Asynchronously retrieves documents from the specified MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to apply to the query.</param>
-    /// <param name="callback">An optional callback action to be invoked with the list of documents that match the filter.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the list of documents that match the filter.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the query.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify matching documents.</param>
+    /// <param name="callback">Optional callback receiving the list of matching documents.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>A tuple containing the helper instance and list of matching documents.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     /// <remarks>
-    /// This method asynchronously finds all documents in the specified MongoDB collection that match the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the query.
-    /// The results are returned as a list of JObjects.
-    /// <para>
-    /// Example:
+    /// Retrieves all documents matching the specified filter criteria.
+    ///
+    /// > [!TIP]
+    /// > Use pagination for large result sets to improve performance.
+    ///
+    /// > [!IMPORTANT]
+    /// > Complex queries may impact performance. Consider indexing frequently queried fields.
+    ///
+    /// Example usage:
     /// <code>
-    /// var filter = new JObject { ["age"] = new JObject { ["$gt"] = 30 } };
-    /// var (helper, results) = await mongoHelper.FindAsync("users", filter);
-    /// foreach (var user in results)
+    /// var filter = new JObject
     /// {
-    ///     Console.WriteLine($"Found user: {user["name"]}");
-    /// }
+    ///     ["age"] = new JObject { ["$gte"] = 21 },
+    ///     ["interests"] = new JObject
+    ///     {
+    ///         ["$all"] = new JArray { "coding", "mongodb" }
+    ///     },
+    ///     ["lastLogin"] = new JObject
+    ///     {
+    ///         ["$gte"] = DateTime.UtcNow.AddDays(-30)
+    ///     }
+    /// };
+    ///
+    /// var (helper, users) = await mongoHelper.FindAsync(
+    ///     collection: "users",
+    ///     filter: filter,
+    ///     callback: results =>
+    ///     {
+    ///         foreach (var user in results)
+    ///             Console.WriteLine($"Found: {user["name"]}");
+    ///     }
+    /// );
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindAsync.htm">MongoDB.Driver.IMongoCollection.FindAsync Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/query/">MongoDB Query Operators</seealso>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/reading/">MongoDB C# Driver Reading Documentation</seealso>
     public async Task<(MongoHelper helper, List<JObject> results)> FindAsync(
         string collection,
         JObject filter,
@@ -472,37 +647,82 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously finds a single document in the specified collection that matches the given filter.
+    /// Asynchronously retrieves a single document from a MongoDB collection based on specified criteria.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="filter">The filter to apply to the query.</param>
-    /// <param name="callback">An optional callback action to be invoked with the matching document, or null if no match is found.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the matching document, or null if no match is found.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the query.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="filter">The query filter to identify the document.</param>
+    /// <param name="callback">Optional callback receiving the found document or null if not found.</param>
+    /// <param name="cancellationToken">Optional token to cancel the operation.</param>
+    /// <returns>A tuple containing the helper instance and the found document (or null).</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="FormatException">Thrown when the filter JSON is invalid.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
     /// <remarks>
-    /// This method asynchronously finds a single document in the specified MongoDB collection that matches the given filter.
-    /// It converts the filter JObject to a BsonDocument before performing the query.
-    /// The result is returned as a JObject (or null if no match is found).
-    /// <para>
-    /// Example:
+    /// Retrieves the first document matching the specified filter criteria.
+    ///
+    /// > [!IMPORTANT]
+    /// > If multiple documents match the filter, only the first one is returned.
+    ///
+    /// > [!TIP]
+    /// > Use indexes on frequently queried fields to improve performance.
+    ///
+    /// > [!NOTE]
+    /// > Returns null when no document matches the filter.
+    ///
+    /// Example usage with various query operators:
     /// <code>
-    /// var filter = new JObject { ["name"] = "John Doe" };
-    /// var (helper, user) = await mongoHelper.FindOneAsync("users", filter);
-    /// if (user != null)
+    /// // Simple equality match
+    /// var filter1 = new JObject
     /// {
-    ///     Console.WriteLine($"Found user: {user["name"]}, Age: {user["age"]}");
-    /// }
-    /// else
+    ///     ["email"] = "user@example.com",
+    ///     ["isActive"] = true
+    /// };
+    ///
+    /// // Complex query with multiple conditions
+    /// var filter2 = new JObject
     /// {
-    ///     Console.WriteLine("User not found");
+    ///     ["age"] = new JObject { ["$gte"] = 18 },
+    ///     ["lastLogin"] = new JObject
+    ///     {
+    ///         ["$gte"] = DateTime.UtcNow.AddDays(-30)
+    ///     },
+    ///     ["roles"] = new JObject
+    ///     {
+    ///         ["$in"] = new JArray { "admin", "moderator" }
+    ///     },
+    ///     ["$or"] = new JArray
+    ///     {
+    ///         new JObject { ["premium"] = true },
+    ///         new JObject { ["credits"] = new JObject { ["$gt"] = 1000 } }
+    ///     }
+    /// };
+    ///
+    /// // Usage with callback
+    /// var (helper, user) = await mongoHelper.FindOneAsync(
+    ///     collection: "users",
+    ///     filter: filter2,
+    ///     callback: result =>
+    ///     {
+    ///         if (result != null)
+    ///         {
+    ///             var userId = result["_id"].ToString();
+    ///             var username = result["username"].ToString();
+    ///             Console.WriteLine($"Found user {username} with ID {userId}");
+    ///         }
+    ///     }
+    /// );
+    ///
+    /// // Handling null result
+    /// if (user == null)
+    /// {
+    ///     throw new KeyNotFoundException("User not found");
     /// }
     /// </code>
-    /// </para>
     /// </remarks>
-    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindAsync.htm">MongoDB.Driver.IMongoCollection.FindAsync Method</seealso>
-    /// <seealso href="https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_Linq_JObject.htm">Newtonsoft.Json.Linq.JObject Class</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/query/">MongoDB Query Operators</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/tutorial/query-documents/">MongoDB Query Documents</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/drivers/csharp/current/fundamentals/crud/read-operations/">MongoDB C# Driver Read Operations</seealso>
     public async Task<(MongoHelper helper, JObject? result)> FindOneAsync(
         string collection,
         JObject filter,
@@ -537,23 +757,44 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Gets the next incremental ID for a collection.
+    /// Gets or generates the next sequential ID for the specified collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <returns>The next available incremental ID.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the operation.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <returns>The next available numeric ID.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
     /// <remarks>
-    /// This method finds the highest numeric ID in the collection and returns the next available number.
-    /// If no numeric IDs exist, returns 1 as the first ID.
-    /// <para>
-    /// Example:
+    /// Provides auto-incrementing numeric IDs for collections.
+    ///
+    /// > [!IMPORTANT]
+    /// > This method is not atomic. For high-concurrency scenarios, consider using MongoDB's ObjectId.
+    ///
+    /// > [!NOTE]
+    /// > Returns 1 for empty collections or when no numeric IDs exist.
+    ///
+    /// Example usage:
     /// <code>
-    /// var nextId = mongoHelper.GetIncrementId("users");
-    /// var document = new JObject { ["_id"] = nextId, ["name"] = "John Doe" };
+    /// var nextId = mongoHelper.GetIncrementId("orders");
+    ///
+    /// var order = new JObject
+    /// {
+    ///     ["_id"] = nextId,
+    ///     ["userId"] = ObjectId.Parse(userId),
+    ///     ["items"] = new JArray
+    ///     {
+    ///         new JObject
+    ///         {
+    ///             ["productId"] = 1001,
+    ///             ["quantity"] = 2
+    ///         }
+    ///     },
+    ///     ["status"] = "pending",
+    ///     ["createdAt"] = DateTime.UtcNow
+    /// };
     /// </code>
-    /// </para>
     /// </remarks>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/ObjectId/">MongoDB ObjectId Documentation</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/tutorial/create-an-auto-incrementing-field/">MongoDB Auto-Incrementing Field Tutorial</seealso>
     public int GetIncrementId(string collection)
     {
         try
@@ -586,29 +827,76 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Asynchronously gets the next incremental ID for a collection.
+    /// Asynchronously generates the next sequential numeric identifier for a MongoDB collection.
     /// </summary>
-    /// <param name="collection">The name of the collection.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="callback">An optional callback action to be invoked with the next ID value.</param>
-    /// <returns>A tuple containing the current MongoHelper instance and the next available incremental ID.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the helper has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during the operation.</exception>
+    /// <param name="collection">The name of the target collection.</param>
+    /// <param name="callback">Optional callback to process the generated ID before returning.</param>
+    /// <param name="cancellationToken">Token to cancel the async operation.</param>
+    /// <returns>A tuple containing the current helper instance and the next available ID.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when the helper instance has been disposed.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is canceled.</exception>
+    /// <exception cref="FormatException">Thrown when existing IDs cannot be parsed as integers.</exception>
     /// <remarks>
-    /// This method asynchronously finds the highest numeric ID in the collection and returns the next available number.
-    /// If no numeric IDs exist, returns 1 as the first ID.
-    /// <para>
-    /// Example:
+    /// Provides auto-incrementing numeric IDs for MongoDB collections by finding the highest existing ID
+    /// and incrementing it by one.
+    ///
+    /// > [!IMPORTANT]
+    /// > This method is not atomic and may produce duplicate IDs in high-concurrency scenarios.
+    /// > Consider using MongoDB's native ObjectId for production environments.
+    ///
+    /// > [!CAUTION]
+    /// > Ensure all documents in the collection use consistent ID formats to prevent parsing errors.
+    ///
+    /// > [!TIP]
+    /// > For better performance, create an index on the _id field: ```db.collection.createIndex({ "_id": 1 })```
+    ///
+    /// Example usage scenarios:
     /// <code>
+    /// // Basic usage
     /// var (helper, nextId) = await mongoHelper.GetIncrementIdAsync(
-    ///     collection: "users",
-    ///     callback: id => Console.WriteLine($"Next ID: {id}"),
-    ///     cancellationToken: token
+    ///     collection: "orders",
+    ///     callback: id => Console.WriteLine($"Generated ID: {id}")
     /// );
-    /// var document = new JObject { ["_id"] = nextId, ["name"] = "John Doe" };
+    ///
+    /// // With error handling
+    /// try
+    /// {
+    ///     var (_, orderId) = await mongoHelper.GetIncrementIdAsync(
+    ///         collection: "orders",
+    ///         callback: id =>
+    ///         {
+    ///             if (id > 1_000_000)
+    ///             {
+    ///                 throw new InvalidOperationException("ID limit exceeded");
+    ///             }
+    ///         }
+    ///     );
+    ///
+    ///     var order = new JObject
+    ///     {
+    ///         ["_id"] = orderId,
+    ///         ["customer"] = "CUST001",
+    ///         ["items"] = new JArray
+    ///         {
+    ///             new JObject
+    ///             {
+    ///                 ["productId"] = "PROD123",
+    ///                 ["quantity"] = 2
+    ///             }
+    ///         },
+    ///         ["timestamp"] = DateTime.UtcNow
+    ///     };
+    /// }
+    /// catch (Exception ex) when (ex is not OperationCanceledException)
+    /// {
+    ///     // Handle errors
+    /// }
     /// </code>
-    /// </para>
     /// </remarks>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/ObjectId/">MongoDB ObjectId</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/core/indexes/">MongoDB Indexes</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/tutorial/create-an-auto-incrementing-field/">Auto-Incrementing Field Tutorial</seealso>
     public async Task<(MongoHelper helper, int id)> GetIncrementIdAsync(
         string collection,
         Action<int>? callback = null,

@@ -4,7 +4,8 @@
       "status": {
         "success": "Success",
         "failed": "Failed",
-        "error": "Error"
+        "error": "Error",
+        "not_found": "Not Found"
       },
       "nullMessages": {
         "json_prop_not_found": "JSON property not found: {0}"
@@ -14,7 +15,8 @@
         "processing_failed": "API processing has failed.",
         "processing_error": "API processing has encountered an error.",
         "processing_exception": "API processing has encountered an exception.",
-        "request_validation_error": "An error occurred during request data validation."
+        "request_validation_error": "An error occurred during request data validation.",
+        "document_not_found": "The requested document was not found."
       },
       "logging": {
         "directory_not_found": "Directory not found: {0}",
@@ -60,14 +62,16 @@
       "status": {
         "success": "Berhasil",
         "failed": "Gagal",
-        "error": "Kesalahan"
+        "error": "Kesalahan",
+        "not_found": "Tidak Ditemukan"
       },
       "message": {
         "processing_done": "Pemrosesan API telah selesai.",
         "processing_failed": "Pemrosesan API telah gagal.",
         "processing_error": "Pemrosesan API telah mengalami kesalahan.",
         "processing_exception": "Pemrosesan API telah mengalami exception.",
-        "request_validation_error": "Terjadi Kesalahan saat melakukan validasi pada data request."
+        "request_validation_error": "Terjadi Kesalahan saat melakukan validasi pada data request.",
+        "document_not_found": "Dokumen yang diminta tidak ditemukan."
       },
       "logging": {
         "directory_not_found": "Direktori tidak ditemukan: {0}",

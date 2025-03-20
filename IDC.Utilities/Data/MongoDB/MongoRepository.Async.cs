@@ -271,4 +271,46 @@ public partial class MongoRepository<T>
         callback?.Invoke(obj: result);
         return result;
     }
+
+    public async Task<long> UpdateSomePropsAsync(
+        JObject filter,
+        T document,
+        Action<long>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(argument: document);
+        var jsonDoc = JObject.FromObject(o: document);
+        var flattenedUpdates = new Dictionary<string, object?>();
+
+        void FlattenObject(JObject obj, string prefix = "")
+        {
+            foreach (var prop in obj.Properties())
+            {
+                var key = string.IsNullOrEmpty(prefix) ? prop.Name : $"{prefix}.{prop.Name}";
+                if (prop.Value is JObject nested)
+                    FlattenObject(nested, key);
+                else
+                    flattenedUpdates[key] = prop.Value?.ToObject<object>();
+            }
+        }
+
+        FlattenObject(jsonDoc);
+        var update = new JObject
+        {
+            ["$set"] = new JObject(
+                flattenedUpdates.Select(x => new JProperty(
+                    x.Key,
+                    x.Value != null ? JToken.FromObject(x.Value) : null
+                ))
+            )
+        };
+
+        return await UpdateOneAsync(
+            filter: filter,
+            update: update,
+            callback: callback,
+            cancellationToken: cancellationToken
+        );
+    }
 }

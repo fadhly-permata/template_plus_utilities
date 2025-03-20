@@ -6,23 +6,47 @@ namespace IDC.Utilities.Data;
 public sealed partial class MongoHelper
 {
     /// <summary>
-    /// Initializes MongoHelper with connection string and database name.
+    /// Initializes a new instance of the <see cref="MongoHelper"/> class using a connection string.
     /// </summary>
-    /// <param name="connectionString">MongoDB connection string.</param>
-    /// <param name="database">Database name.</param>
-    /// <param name="messages">Optional custom messages.</param>
-    /// <param name="logging">Optional logging instance.</param>
+    /// <param name="connectionString">The MongoDB connection string in standard URI format.</param>
+    /// <param name="database">The name of the database to connect to.</param>
+    /// <param name="messages">Optional custom messages for logging and exceptions.</param>
+    /// <param name="logging">Optional logging provider for diagnostic information.</param>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="connectionString"/> or <paramref name="database"/> is null, empty, or consists only of white-space characters.
+    /// </exception>
+    /// <exception cref="MongoConfigurationException">Invalid connection string format.</exception>
+    /// <exception cref="MongoClientException">Failed to initialize MongoDB client.</exception>
     /// <remarks>
-    /// Creates MongoDB client and connects to specified database.
-    /// Optionally configures logging.
-    /// </remarks>
-    /// <example>
+    /// Initializes MongoDB client with the specified connection string and database name.
+    ///
+    /// > [!IMPORTANT]
+    /// > Connection string must follow MongoDB URI format specification.
+    ///
+    /// > [!NOTE]
+    /// > The connection is not established until <see cref="Connect"/> is called.
+    ///
+    /// Supported connection string formats:
+    /// - Standard URI: mongodb://[username:password@]host[:port][/database][?options]
+    /// - DNS SRV: mongodb+srv://[username:password@]host[/database][?options]
+    ///
+    /// Example:
     /// <code>
-    /// var db = new MongoHelper("mongodb://localhost:27017", "mydb");
+    /// // Basic connection
+    /// var db = new MongoHelper(
+    ///     connectionString: "mongodb://localhost:27017",
+    ///     database: "mydb"
+    /// );
+    ///
+    /// // With authentication
+    /// var db = new MongoHelper(
+    ///     connectionString: "mongodb://user:pass@localhost:27017/?authSource=admin",
+    ///     database: "mydb",
+    ///     logging: new SystemLogging()
+    /// );
     /// </code>
-    /// </example>
-    /// <exception cref="ArgumentException">Thrown when connection string or database name is null or empty.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
+    /// </remarks>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/connection-string/">MongoDB Connection String URI Format</seealso>
     public MongoHelper(
         string connectionString,
         string database,
@@ -48,26 +72,43 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Initializes MongoHelper with common connection string.
+    /// Initializes a new instance of the <see cref="MongoHelper"/> class using a common connection string format.
     /// </summary>
-    /// <param name="connectionString">Common connection string instance.</param>
-    /// <param name="messages">Optional custom messages.</param>
-    /// <param name="logging">Optional logging instance.</param>
+    /// <param name="connectionString">The common connection string configuration.</param>
+    /// <param name="messages">Optional custom messages for logging and exceptions.</param>
+    /// <param name="logging">Optional logging provider for diagnostic information.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is null.</exception>
+    /// <exception cref="MongoConfigurationException">Invalid connection string configuration.</exception>
+    /// <exception cref="MongoClientException">Failed to initialize MongoDB client.</exception>
     /// <remarks>
-    /// Creates MongoDB client using common format.
-    /// Optionally configures logging.
-    /// </remarks>
-    /// <example>
+    /// Creates a MongoDB client using the standardized <see cref="CommonConnectionString"/> format.
+    ///
+    /// > [!TIP]
+    /// > Use this constructor when working with multiple database types in your application.
+    ///
+    /// > [!NOTE]
+    /// > The connection is not established until <see cref="Connect"/> is called.
+    ///
+    /// Example:
     /// <code>
-    /// var connStr = new CommonConnectionString {
-    ///     Host = "localhost",
-    ///     Database = "mydb"
+    /// var connStr = new CommonConnectionString
+    /// {
+    ///     Server = "localhost",
+    ///     Port = 27017,
+    ///     Database = "mydb",
+    ///     Username = "admin",
+    ///     Password = "secret",
+    ///     ConnectionTimeout = 30
     /// };
-    /// var db = new MongoHelper(connStr);
+    ///
+    /// var db = new MongoHelper(
+    ///     connectionString: connStr,
+    ///     logging: new SystemLogging()
+    /// );
     /// </code>
-    /// </example>
-    /// <exception cref="ArgumentNullException">Thrown when connection string is null.</exception>
-    /// <exception cref="Exception">Rethrows any exceptions that occur during initialization.</exception>
+    /// </remarks>
+    /// <seealso cref="CommonConnectionString"/>
+    /// <seealso cref="CommonConnectionString.ToMongoDB"/>
     public MongoHelper(
         CommonConnectionString connectionString,
         Messages? messages = null,

@@ -429,13 +429,16 @@ public sealed class SystemLogging : IDisposable
         if (_disposed)
             return;
 
-        Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}");
+        Task.Run(() =>
+        {
+            Console.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{level}] {message}");
 
-        if (_enableOsLogging)
-            LogToOperatingSystem(message: message, level: level);
+            if (_enableOsLogging)
+                LogToOperatingSystem(message: message, level: level);
 
-        if (_enableFileLogging)
-            LogToFile(message: message, level: level);
+            if (_enableFileLogging)
+                LogToFile(message: message, level: level);
+        });
     }
 
     /// <summary>
