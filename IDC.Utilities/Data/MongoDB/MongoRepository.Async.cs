@@ -313,4 +313,108 @@ public partial class MongoRepository<T>
             cancellationToken: cancellationToken
         );
     }
+
+    public async Task<bool> ArrayPushAsync(
+        JObject filter,
+        string arrayPath,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayPushAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArraySetAsync(
+        JObject filter,
+        string arrayPath,
+        int index,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArraySetAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayUpdateAsync(
+        JObject filter,
+        string arrayPath,
+        JObject arrayFilter,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayUpdateAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            arrayFilter: arrayFilter,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayPullAsync(
+        JObject filter,
+        string arrayPath,
+        JObject condition,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayPullAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            condition: condition,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayRemoveAtAsync(
+        JObject filter,
+        string arrayPath,
+        int index,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayRemoveAtAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
 }

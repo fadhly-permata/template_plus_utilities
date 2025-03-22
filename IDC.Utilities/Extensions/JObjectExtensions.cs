@@ -175,6 +175,7 @@ public static class JObjectExtensions
     /// <param name="source">The base JObject.</param>
     /// <param name="other">The JObject to merge into the base.</param>
     /// <param name="mergeArrays">When true, arrays are combined. When false, arrays are replaced.</param>
+    /// <param name="deepMerge">When true, performs a deep merge of the source object before merging.</param>
     /// <returns>A new JObject containing the merged result.</returns>
     /// <remarks>
     /// Performs a deep merge of two JObjects with the following rules:
@@ -226,14 +227,22 @@ public static class JObjectExtensions
     /// // Result: endpoints = ["api1", "api2", "api3"]
     /// </code>
     /// </example>
-    public static JObject PropMerge(this JObject source, JObject other, bool mergeArrays = false)
+    public static JObject PropMerge(
+        this JObject source,
+        JObject other,
+        bool mergeArrays = false,
+        bool deepMerge = true
+    )
     {
         var result = new JObject();
         source
             ?.Properties()
             .ToList()
             .ForEach(action: prop =>
-                result.Add(propertyName: prop.Name, value: prop.Value?.DeepClone())
+                result.Add(
+                    propertyName: prop.Name,
+                    value: deepMerge ? prop.Value?.DeepClone() : prop.Value
+                )
             );
 
         if (other == null)
@@ -243,12 +252,19 @@ public static class JObjectExtensions
         {
             if (!result.ContainsKey(propertyName: kvp.Key))
             {
-                result.Add(propertyName: kvp.Key, value: kvp.Value?.DeepClone());
+                result.Add(
+                    propertyName: kvp.Key,
+                    value: deepMerge ? kvp.Value?.DeepClone() : kvp.Value
+                );
                 continue;
             }
 
             if (result[kvp.Key] is JObject sourceObj && kvp.Value is JObject otherObj)
-                result[kvp.Key] = sourceObj.PropMerge(other: otherObj, mergeArrays: mergeArrays);
+                result[kvp.Key] = sourceObj.PropMerge(
+                    other: otherObj,
+                    mergeArrays: mergeArrays,
+                    deepMerge: deepMerge
+                );
             else if (
                 mergeArrays
                 && result[kvp.Key] is JArray sourceArray
@@ -256,7 +272,7 @@ public static class JObjectExtensions
             )
                 result[kvp.Key] = new JArray(content: sourceArray.Union(second: otherArray));
             else
-                result[kvp.Key] = kvp.Value?.DeepClone();
+                result[kvp.Key] = deepMerge ? kvp.Value?.DeepClone() : kvp.Value;
         }
 
         return result;

@@ -297,4 +297,66 @@ public partial class MongoRepository<T>(MongoHelper mongoHelper, string collecti
 
         return UpdateOne(filter: filter, update: update);
     }
+
+    public bool ArrayPush(JObject filter, string arrayPath, JToken value)
+    {
+        _mongoHelper.ArrayPush(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArraySet(JObject filter, string arrayPath, int index, JToken value)
+    {
+        _mongoHelper.ArraySet(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayUpdate(JObject filter, string arrayPath, JObject arrayFilter, JToken value)
+    {
+        _mongoHelper.ArrayUpdate(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            arrayFilter: arrayFilter,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayPull(JObject filter, string arrayPath, JObject condition)
+    {
+        _mongoHelper.ArrayPull(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            condition: condition,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayRemoveAt(JObject filter, string arrayPath, int index)
+    {
+        _mongoHelper.ArrayRemoveAt(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
 }

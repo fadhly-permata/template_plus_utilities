@@ -9,8 +9,8 @@ internal partial class Program
         ConfigureSystemLogging(builder: builder);
         ConfigureCaching(builder: builder);
         ConfigureSQLite(builder: builder);
+        ConfigureMongoDB(builder: builder);
 
-        // Add this in your service configuration
         builder.Services.AddScoped<ApiKeyAuthenticationMiddleware>();
     }
 }

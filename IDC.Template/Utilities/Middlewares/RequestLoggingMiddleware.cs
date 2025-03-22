@@ -48,7 +48,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, SystemLogging system
             await next(context);
             var elapsed = DateTime.UtcNow - start;
 
-            if (context.Response.StatusCode != StatusCodes.Status200OK)
+            if (context.Response.StatusCode >= 400)
                 throw new HttpRequestException(
                     $"Request failed with status code {context.Response.StatusCode}"
                 );

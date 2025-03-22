@@ -14,11 +14,11 @@ namespace IDC.Utilities.Data;
 /// - Custom error messages
 ///
 /// Example usage:
-/// ```csharp
+/// <code>
 /// using var mongo = new MongoHelper(connectionString: "mongodb://localhost:27017");
 /// await mongo.ConnectAsync(database: "mydb");
-/// var collection = mongo.GetCollection<User>("users");
-/// ```
+/// var collection = mongo.GetCollection&lt;User&gt;("users");
+/// </code>
 /// </remarks>
 public sealed partial class MongoHelper
 {
@@ -63,7 +63,7 @@ public sealed partial class MongoHelper
     /// - Database statistics
     ///
     /// > [!WARNING]
-    /// > Must be initialized via <see cref="ConnectAsync"/> before use.
+    /// > Must be initialized via <see cref="M:IDC.Utilities.Data.MongoHelper.ConnectAsync"/> before use.
     /// </remarks>
     private IMongoDatabase _database;
 
