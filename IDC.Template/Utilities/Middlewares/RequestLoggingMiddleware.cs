@@ -48,6 +48,11 @@ public class RequestLoggingMiddleware(RequestDelegate next, SystemLogging system
             await next(context);
             var elapsed = DateTime.UtcNow - start;
 
+            if (context.Response.StatusCode >= 400)
+                throw new HttpRequestException(
+                    $"Request failed with status code {context.Response.StatusCode}"
+                );
+
             systemLogging.LogInformation(
                 $"{requestMethod} {requestPath} completed in {elapsed.TotalMilliseconds}ms with status {context.Response.StatusCode}"
             );
@@ -56,7 +61,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, SystemLogging system
         {
             systemLogging.LogError($"{requestMethod} {requestPath} failed");
             systemLogging.LogError(ex);
-            throw;
+            return;
         }
     }
 }

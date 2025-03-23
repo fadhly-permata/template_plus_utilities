@@ -43,7 +43,7 @@
         {
             "label": "Generate Documentation",
             "type": "shell",
-            "command": "cd /media/fadhly/Data/DOCS/Research/DocFxV3 && chmod +x run.sh && ./run.sh",
+            "command": "cd /media/fadhly/Data/DOCS/Research/DocFxV3 && chmod +x run.sh && ./run.sh && exit",
             "group": {
                 "kind": "build",
                 "isDefault": false

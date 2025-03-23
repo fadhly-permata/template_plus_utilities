@@ -2,6 +2,7 @@ using IDC.Utilities;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using MongoDB.Driver;
 
 namespace IDC.Template.Utilities.Middlewares;
 
@@ -58,6 +59,7 @@ public class ExceptionHandlerFilter(Language language, SystemLogging systemLoggi
             UnauthorizedAccessException => new UnauthorizedObjectResult(response),
             KeyNotFoundException => new NotFoundObjectResult(response),
             InvalidOperationException => new BadRequestObjectResult(response),
+            MongoException => new StatusCodeResult(StatusCodes.Status503ServiceUnavailable),
             ArgumentException => new BadRequestObjectResult(response),
             NotImplementedException => new StatusCodeResult(StatusCodes.Status501NotImplemented),
             TimeoutException => new StatusCodeResult(StatusCodes.Status408RequestTimeout),

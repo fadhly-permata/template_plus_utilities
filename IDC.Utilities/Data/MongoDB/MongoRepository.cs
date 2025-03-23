@@ -1,3 +1,5 @@
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 
 namespace IDC.Utilities.Data;
@@ -18,12 +20,17 @@ namespace IDC.Utilities.Data;
 /// </code>
 /// </remarks>
 /// <seealso href="https://www.mongodb.com/docs/drivers/csharp/current/">MongoDB .NET Driver</seealso>
-public partial class MongoRepository<T>(MongoHelper mongoHelper, string collectionName)
+public partial class MongoRepository<T>(
+    MongoHelper mongoHelper,
+    string collectionName,
+    IMongoCollection<BsonDocument>? collection = null
+)
 {
     private readonly MongoHelper _mongoHelper =
         mongoHelper ?? throw new ArgumentNullException(paramName: nameof(mongoHelper));
     private readonly string _collectionName =
         collectionName ?? throw new ArgumentNullException(paramName: nameof(collectionName));
+    private readonly IMongoCollection<BsonDocument>? collection = collection;
 
     /// <summary>
     /// Inserts a single document into the collection.
@@ -212,5 +219,151 @@ public partial class MongoRepository<T>(MongoHelper mongoHelper, string collecti
     {
         _mongoHelper.TransactionRollback();
         return this;
+    }
+
+    /// <summary>
+    /// Updates specific fields of a document while preserving other fields.
+    /// </summary>
+    /// <param name="filter">The filter criteria to identify the document to update (e.g., {"_id": "2"}).</param>
+    /// <param name="document">The document containing only the fields to update.</param>
+    /// <returns>The number of documents that were modified by the update operation.</returns>
+    /// <remarks>
+    /// This method allows partial updates to documents by only modifying specified fields while preserving all other existing data.
+    ///
+    /// Key features:
+    /// - Supports nested document updates (e.g., updating specific fields within subdocuments)
+    /// - Preserves existing array values
+    /// - Maintains document structure
+    /// - Uses MongoDB's $set operator for atomic updates
+    ///
+    /// Example:
+    /// <code>
+    /// // Original document
+    /// {
+    ///   "_id": "2",
+    ///   "nama": "Cepot Setiawan",
+    ///   "alamat": {
+    ///     "jalan": "Jl. Merdeka No. 10",
+    ///     "kota": "Jakarta"
+    ///   }
+    /// }
+    ///
+    /// // Update request
+    /// var filter = new JObject { ["_id"] = "2" };
+    /// var update = new Student {
+    ///   alamat = new Alamat {
+    ///     kabupaten = "Jakarta"
+    ///   }
+    /// };
+    ///
+    /// repository.UpdateSomeProps(filter, update);
+    ///
+    /// // Result
+    /// {
+    ///   "_id": "2",
+    ///   "nama": "Cepot Setiawan",
+    ///   "alamat": {
+    ///     "jalan": "Jl. Merdeka No. 10",
+    ///     "kota": "Jakarta",
+    ///     "kabupaten": "Jakarta"
+    ///   }
+    /// }
+    /// </code>
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Thrown when document parameter is null.</exception>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/operator/update/set/">MongoDB $set Operator</seealso>
+    /// <seealso href="https://www.mongodb.com/docs/manual/tutorial/update-documents/">MongoDB Update Documents</seealso>
+    public long UpdateSomeProps(JObject filter, T document)
+    {
+        ArgumentNullException.ThrowIfNull(argument: document);
+        var jsonDoc = JObject.FromObject(o: document);
+        var flattenedUpdates = new Dictionary<string, object?>();
+
+        void FlattenObject(JObject obj, string prefix = "")
+        {
+            foreach (var prop in obj.Properties())
+            {
+                var key = string.IsNullOrEmpty(prefix) ? prop.Name : $"{prefix}.{prop.Name}";
+                if (prop.Value is JObject nested)
+                    FlattenObject(nested, key);
+                else
+                    flattenedUpdates[key] = prop.Value?.ToObject<object>();
+            }
+        }
+
+        FlattenObject(jsonDoc);
+        var update = new JObject
+        {
+            ["$set"] = new JObject(
+                flattenedUpdates.Select(x => new JProperty(
+                    x.Key,
+                    x.Value != null ? JToken.FromObject(x.Value) : null
+                ))
+            )
+        };
+
+        return UpdateOne(filter: filter, update: update);
+    }
+
+    public bool ArrayPush(JObject filter, string arrayPath, JToken value)
+    {
+        _mongoHelper.ArrayPush(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArraySet(JObject filter, string arrayPath, int index, JToken value)
+    {
+        _mongoHelper.ArraySet(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayUpdate(JObject filter, string arrayPath, JObject arrayFilter, JToken value)
+    {
+        _mongoHelper.ArrayUpdate(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            arrayFilter: arrayFilter,
+            value: value,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayPull(JObject filter, string arrayPath, JObject condition)
+    {
+        _mongoHelper.ArrayPull(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            condition: condition,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
+    }
+
+    public bool ArrayRemoveAt(JObject filter, string arrayPath, int index)
+    {
+        _mongoHelper.ArrayRemoveAt(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            out long modifiedCount
+        );
+        return modifiedCount > 0;
     }
 }

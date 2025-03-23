@@ -6,32 +6,44 @@ namespace IDC.Utilities.Extensions;
 /// Provides extension methods for enhanced Exception handling and manipulation.
 /// </summary>
 /// <remarks>
-/// This class offers utility methods to:
-/// - Extract comprehensive exception messages
-/// - Generate detailed exception reports
-/// - Manage exception metadata through a key-value store
+/// A collection of utility methods that extend the base Exception class to provide:
+/// - Comprehensive exception message chain extraction
+/// - Detailed exception report generation with stack traces
+/// - Exception metadata management through key-value pairs
+/// - Fluent interface for exception customization
 ///
-/// Example usage for common scenarios:
+/// > [!NOTE]
+/// > All methods preserve the original exception while adding functionality.
+///
+/// > [!IMPORTANT]
+/// > Stack traces may contain sensitive information. Use appropriate methods in production.
+///
+/// Example usage:
 /// ```csharp
 /// try
 /// {
-///     throw new Exception("Primary error")
-///         .AddData("UserId", 123)
-///         .AddData("Operation", "UserSync");
+///     throw new InvalidOperationException("Operation failed")
+///         .AddData(key: "UserId", value: 123)
+///         .AddData(key: "Operation", value: "UserSync")
+///         .AddData(key: "Timestamp", value: DateTime.UtcNow);
 /// }
 /// catch (Exception ex)
 /// {
 ///     // Get full message chain
-///     string messages = ex.GetFullMessage();
+///     string messages = ex.GetFullMessage(separator: " | ");
 ///
-///     // Get detailed report
-///     string report = ex.GetExceptionDetails();
+///     // Generate detailed report
+///     string report = ex.GetExceptionDetails(includeStackTrace: true);
 ///
-///     // Retrieve metadata
-///     int userId = ex.GetData<int>("UserId");
+///     // Access metadata
+///     var userId = (int)ex.Data["UserId"];
+///     var operation = (string)ex.Data["Operation"];
 /// }
 /// ```
 /// </remarks>
+/// <seealso cref="Exception"/>
+/// <seealso cref="Exception.Data"/>
+/// <seealso cref="StringBuilder"/>
 public static class ExceptionExtensions
 {
     /// <summary>
@@ -199,33 +211,31 @@ public static class ExceptionExtensions
     /// <summary>
     /// Adds multiple key-value pairs to the exception's metadata dictionary.
     /// </summary>
-    /// <param name="ex">The source exception.</param>
-    /// <param name="data">A dictionary of metadata entries.</param>
-    /// <returns>The original exception for method chaining.</returns>
+    /// <param name="ex">The exception instance.</param>
+    /// <param name="data">Dictionary containing metadata key-value pairs.</param>
+    /// <returns>The exception instance for method chaining.</returns>
+    /// <exception cref="ArgumentNullException">When ex or data is null.</exception>
     /// <remarks>
-    /// Bulk operation version of AddData for multiple entries.
+    /// Provides atomic operation to add multiple metadata entries to an exception's Data dictionary.
+    /// Preserves existing data while overwriting duplicate keys.
     ///
-    /// > [!NOTE]
-    /// > Existing keys will be overwritten with new values.
+    /// > [!IMPORTANT]
+    /// > Ensure all dictionary values are serializable if the exception will be logged
+    /// > or transmitted across process boundaries.
     ///
-    /// > [!TIP]
-    /// > Use object initializer syntax for cleaner code when adding multiple entries.
-    /// </remarks>
-    /// <example>
-    /// ```csharp
-    /// var metadata = new Dictionary<string, object?>
-    /// {
-    ///     ["TransactionId"] = Guid.NewGuid(),
-    ///     ["Amount"] = 1250.50m,
-    ///     ["Currency"] = "USD",
-    ///     ["Status"] = "Failed"
-    /// };
-    ///
+    /// Example:
+    /// <code>
     /// throw new Exception("Transaction failed")
-    ///     .AddData(metadata);
-    /// ```
-    /// </example>
-    /// <exception cref="ArgumentNullException">Thrown when ex or data is null.</exception>
+    ///     .AddData(new Dictionary&lt;string, object?&gt;
+    ///     {
+    ///         ["TransactionId"] = Guid.NewGuid(),
+    ///         ["Amount"] = 1250.50m,
+    ///         ["Currency"] = "USD"
+    ///     });
+    /// </code>
+    /// </remarks>
+    /// <seealso cref="GetData{T}"/>
+    /// <seealso href="https://learn.microsoft.com/dotnet/api/system.exception.data">Exception.Data Property</seealso>
     public static Exception AddData(this Exception ex, Dictionary<string, object?> data)
     {
         foreach (var kvp in data)
@@ -238,24 +248,24 @@ public static class ExceptionExtensions
     /// Retrieves a strongly-typed value from the exception's metadata dictionary.
     /// </summary>
     /// <typeparam name="T">The expected type of the value.</typeparam>
-    /// <param name="ex">The source exception.</param>
-    /// <param name="key">The metadata key to retrieve.</param>
-    /// <param name="defaultValue">The fallback value if key not found or type mismatch.</param>
-    /// <returns>The value cast to type T, or defaultValue if not found/castable.</returns>
+    /// <param name="ex">The exception instance.</param>
+    /// <param name="key">The metadata key.</param>
+    /// <param name="defaultValue">Default value if key not found or value cannot be cast.</param>
+    /// <returns>The value cast to type T, or defaultValue if retrieval/casting fails.</returns>
+    /// <exception cref="ArgumentNullException">When ex or key is null.</exception>
     /// <remarks>
     /// Provides type-safe access to exception metadata with fallback support.
-    ///
-    /// > [!NOTE]
-    /// > Returns defaultValue in three cases:
-    /// > - Key doesn't exist
-    /// > - Value is null
-    /// > - Value cannot be cast to type T
+    /// Returns defaultValue when:
+    /// - Key doesn't exist
+    /// - Stored value is null
+    /// - Value cannot be cast to type T
+    /// - Error occurs during retrieval
     ///
     /// > [!TIP]
     /// > Use nullable types when the value might be null.
-    /// </remarks>
-    /// <example>
-    /// ```csharp
+    ///
+    /// Example:
+    /// <code>
     /// try
     /// {
     ///     throw new Exception("Payment failed")
@@ -264,13 +274,14 @@ public static class ExceptionExtensions
     /// }
     /// catch (Exception ex)
     /// {
-    ///     decimal amount = ex.GetData<decimal>("Amount");
-    ///     bool isRetry = ex.GetData<bool>("IsRetry");
-    ///     string? reference = ex.GetData<string>("Reference", "N/A");
+    ///     decimal amount = ex.GetData&lt;decimal&gt;("Amount");
+    ///     bool isRetry = ex.GetData&lt;bool&gt;("IsRetry");
+    ///     string reference = ex.GetData&lt;string&gt;("Reference", "N/A");
     /// }
-    /// ```
-    /// </example>
-    /// <exception cref="ArgumentNullException">Thrown when ex or key is null.</exception>
+    /// </code>
+    /// </remarks>
+    /// <seealso cref="AddData"/>
+    /// <seealso href="https://learn.microsoft.com/dotnet/api/system.exception.data">Exception.Data Property</seealso>
     public static T? GetData<T>(this Exception ex, string key, T? defaultValue = default)
     {
         if (!ex.Data.Contains(key: key))

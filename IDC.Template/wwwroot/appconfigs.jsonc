@@ -55,18 +55,18 @@
         // Aktifkan middleware request logging
         "RequestLogging": true,
         // Aktifkan middleware response compression
-        "ResponseCompression": true,
+        "ResponseCompression": false,
         // Aktifkan middleware rate limiting
         "RateLimiting": {
             // Aktifkan rate limiting
-            "Enabled": true,
+            "Enabled": false,
             // Maksimum jumlah request per menit
             "MaxRequestsPerMinute": 100
         },
         // Aktifkan middleware security headers
         "SecurityHeaders": {
             // Aktifkan middleware security headers
-            "Enabled": true,
+            "Enabled": false,
             // Aktifkan middleware security headers untuk HTTP
             "EnableForHttp": true,
             // Aktifkan middleware security headers untuk HTTPS
@@ -84,7 +84,7 @@
             }
         },
         // Aktifkan middleware autentikasi API key
-        "ApiKeyAuthentication": true
+        "ApiKeyAuthentication": false
     },
     // Pengaturan keamanan
     "Security": {

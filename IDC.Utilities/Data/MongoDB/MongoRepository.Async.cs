@@ -271,4 +271,150 @@ public partial class MongoRepository<T>
         callback?.Invoke(obj: result);
         return result;
     }
+
+    public async Task<long> UpdateSomePropsAsync(
+        JObject filter,
+        T document,
+        Action<long>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(argument: document);
+        var jsonDoc = JObject.FromObject(o: document);
+        var flattenedUpdates = new Dictionary<string, object?>();
+
+        void FlattenObject(JObject obj, string prefix = "")
+        {
+            foreach (var prop in obj.Properties())
+            {
+                var key = string.IsNullOrEmpty(prefix) ? prop.Name : $"{prefix}.{prop.Name}";
+                if (prop.Value is JObject nested)
+                    FlattenObject(nested, key);
+                else
+                    flattenedUpdates[key] = prop.Value?.ToObject<object>();
+            }
+        }
+
+        FlattenObject(jsonDoc);
+        var update = new JObject
+        {
+            ["$set"] = new JObject(
+                flattenedUpdates.Select(x => new JProperty(
+                    x.Key,
+                    x.Value != null ? JToken.FromObject(x.Value) : null
+                ))
+            )
+        };
+
+        return await UpdateOneAsync(
+            filter: filter,
+            update: update,
+            callback: callback,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    public async Task<bool> ArrayPushAsync(
+        JObject filter,
+        string arrayPath,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayPushAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArraySetAsync(
+        JObject filter,
+        string arrayPath,
+        int index,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArraySetAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayUpdateAsync(
+        JObject filter,
+        string arrayPath,
+        JObject arrayFilter,
+        JToken value,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayUpdateAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            arrayFilter: arrayFilter,
+            value: value,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayPullAsync(
+        JObject filter,
+        string arrayPath,
+        JObject condition,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayPullAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            condition: condition,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
+
+    public async Task<bool> ArrayRemoveAtAsync(
+        JObject filter,
+        string arrayPath,
+        int index,
+        Action<bool>? callback = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var (_, modifiedCount) = await _mongoHelper.ArrayRemoveAtAsync(
+            collection: _collectionName,
+            filter: filter,
+            arrayPath: arrayPath,
+            index: index,
+            cancellationToken: cancellationToken
+        );
+        var result = modifiedCount > 0;
+        callback?.Invoke(obj: result);
+        return result;
+    }
 }

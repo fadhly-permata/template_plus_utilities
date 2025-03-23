@@ -5,17 +5,23 @@ public sealed partial class MongoHelper
     /// <summary>
     /// Establishes a connection to the MongoDB database.
     /// </summary>
-    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown if the object has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exception that occurs during the connection process.</exception>
+    /// <returns>The current <see cref="MongoHelper"/> instance.</returns>
+    /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+    /// <exception cref="MongoDB.Driver.MongoConnectionException">Failed to establish database connection.</exception>
+    /// <exception cref="MongoDB.Driver.MongoAuthenticationException">Invalid authentication credentials.</exception>
     /// <remarks>
-    /// This method attempts to establish a connection to the MongoDB database.
-    /// If successful, it logs an information message.
+    /// Establishes and validates a connection to the MongoDB database using the configured connection string.
+    ///
+    /// > [!IMPORTANT]
+    /// > Ensure proper connection string configuration before calling this method.
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and can be called multiple times safely.
     ///
     /// Example:
     /// <code>
-    /// var mongo = new MongoHelper(connectionString);
-    /// mongo.Connect();
+    /// var mongo = new MongoHelper(connectionString: "mongodb://localhost:27017")
+    ///     .Connect();
     /// </code>
     /// </remarks>
     public MongoHelper Connect()
@@ -34,19 +40,33 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Disconnects from the MongoDB database and disposes of the current session.
+    /// Disconnects from the MongoDB database and releases the current session.
     /// </summary>
-    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown if the object has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exception that occurs during the disconnection process.</exception>
+    /// <returns>The current <see cref="MongoHelper"/> instance.</returns>
+    /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+    /// <exception cref="MongoDB.Driver.MongoException">Error occurred while disconnecting from database.</exception>
     /// <remarks>
-    /// This method closes the current MongoDB session if one exists.
-    /// It's safe to call even if no session is currently active.
+    /// Safely closes the current MongoDB session and releases associated resources.
+    ///
+    /// > [!NOTE]
+    /// > Safe to call even without an active connection.
+    ///
+    /// > [!TIP]
+    /// > Always call this method in a finally block or use a using statement.
     ///
     /// Example:
     /// <code>
-    /// var mongo = new MongoHelper(connectionString);
-    /// mongo.Connect().Disconnect();
+    /// using var mongo = new MongoHelper(connectionString: "mongodb://localhost:27017");
+    /// try
+    /// {
+    ///     mongo.Connect()
+    ///         .ExecuteCommand()
+    ///         .Disconnect();
+    /// }
+    /// finally
+    /// {
+    ///     mongo.Disconnect();
+    /// }
     /// </code>
     /// </remarks>
     public MongoHelper Disconnect()
@@ -69,19 +89,35 @@ public sealed partial class MongoHelper
     }
 
     /// <summary>
-    /// Reconnects to the MongoDB database by disconnecting and then connecting again.
+    /// Reestablishes the MongoDB database connection.
     /// </summary>
-    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown if the object has been disposed.</exception>
-    /// <exception cref="Exception">Rethrows any exception that occurs during the reconnection process.</exception>
+    /// <returns>The current <see cref="MongoHelper"/> instance.</returns>
+    /// <exception cref="ObjectDisposedException">The object has been disposed.</exception>
+    /// <exception cref="MongoDB.Driver.MongoConnectionException">Failed to reestablish database connection.</exception>
+    /// <exception cref="MongoDB.Driver.MongoAuthenticationException">Invalid authentication credentials.</exception>
     /// <remarks>
-    /// This method is useful for resetting the connection state.
-    /// It first calls <see cref="Disconnect"/> and then <see cref="Connect"/>.
+    /// Performs a clean disconnect and reconnect sequence to reset the connection state.
+    ///
+    /// > [!CAUTION]
+    /// > This operation will terminate all active queries and transactions.
+    ///
+    /// > [!TIP]
+    /// > Useful for handling connection timeouts or stale connections.
     ///
     /// Example:
     /// <code>
-    /// var mongo = new MongoHelper(connectionString);
-    /// mongo.Connect().Reconnect();
+    /// var mongo = new MongoHelper(connectionString: "mongodb://localhost:27017");
+    /// try
+    /// {
+    ///     await mongo.Connect()
+    ///         .ExecuteCommand()
+    ///         .Reconnect()
+    ///         .ExecuteAnotherCommand();
+    /// }
+    /// catch (MongoConnectionException ex)
+    /// {
+    ///     // Handle connection errors
+    /// }
     /// </code>
     /// </remarks>
     public MongoHelper Reconnect()

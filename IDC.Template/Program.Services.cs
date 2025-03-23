@@ -9,7 +9,7 @@ internal partial class Program
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         builder
-            .Services.AddControllers(options =>
+            .Services.AddControllers(configure: static options =>
             {
                 const string ContentType = "application/json";
 
@@ -31,6 +31,10 @@ internal partial class Program
                     )
                 );
             })
+            .ConfigureApiBehaviorOptions(setupAction: static options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            })
             .AddNewtonsoftJson(setupAction: options =>
             {
                 options.SerializerSettings.ContractResolver =
@@ -41,7 +45,7 @@ internal partial class Program
         // Add CORS policy
         if (_appConfigs.Get<bool>(path: "Security.Cors.Enabled"))
         {
-            builder.Services.AddCors(options =>
+            builder.Services.AddCors(setupAction: static options =>
             {
                 options.AddPolicy(
                     name: "CorsPolicy",

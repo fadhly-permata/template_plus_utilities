@@ -178,4 +178,43 @@ public class UsersController : ControllerBase
                 );
         }
     }
+
+    [HttpPatch("{id}")]
+    public async Task<APIResponseData<JObject?>> UpdateSomeProps(string id, [FromBody] JObject data)
+    {
+        try
+        {
+            var cts = new CancellationTokenSource(TimeoutMs);
+            var filter = new JObject { ["_id"] = id };
+
+            var count = await _repository.UpdateSomePropsAsync(
+                filter: filter,
+                document: data,
+                cancellationToken: cts.Token,
+                callback: updatedCount =>
+                    _systemLogging.LogInformation($"Partially updated {updatedCount} document(s)")
+            );
+
+            if (count == 0)
+                return new APIResponseData<JObject?>()
+                    .ChangeStatus(language: _language, key: "api.status.not_found")
+                    .ChangeMessage(language: _language, key: "api.message.document_not_found");
+
+            var updatedDoc = await _repository.FindOneAsync(
+                filter: filter,
+                cancellationToken: cts.Token
+            );
+            return new APIResponseData<JObject?>().ChangeData(data: updatedDoc);
+        }
+        catch (Exception ex)
+        {
+            return new APIResponseData<JObject?>()
+                .ChangeStatus(language: _language, key: "api.status.failed")
+                .ChangeMessage(
+                    exception: ex,
+                    logging: _systemLogging,
+                    includeStackTrace: Commons.IsDebugEnvironment()
+                );
+        }
+    }
 }
