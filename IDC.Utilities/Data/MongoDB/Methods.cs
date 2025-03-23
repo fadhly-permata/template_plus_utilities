@@ -1,12 +1,41 @@
 using IDC.Utilities.Extensions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace IDC.Utilities.Data;
 
 public sealed partial class MongoHelper
 {
+    /// <summary>
+    /// Gets a MongoDB collection with the specified name.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to retrieve.</param>
+    /// <returns>An <see cref="IMongoCollection{TDocument}"/> instance representing the requested collection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when collectionName is null or empty.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <remarks>
+    /// This method provides direct access to a MongoDB collection, allowing for more advanced operations.
+    ///
+    /// > [!IMPORTANT]
+    /// > Ensure proper handling of the returned collection to prevent unintended modifications.
+    ///
+    /// Example usage:
+    /// <code>
+    /// var usersCollection = mongoHelper.GetCollection&lt;BsonDocument&gt;("users");
+    /// var result = await usersCollection.Find(new BsonDocument()).ToListAsync();
+    /// </code>
+    /// </remarks>
+    /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/reading/">MongoDB C# Driver Reading Documentation</seealso>
+    public IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(collectionName);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        return _database.GetCollection<TDocument>(collectionName);
+    }
+
     /// <summary>
     /// Inserts a single document into the specified MongoDB collection.
     /// </summary>
@@ -46,15 +75,89 @@ public sealed partial class MongoHelper
     /// <seealso href="https://mongodb.github.io/mongo-csharp-driver/2.19/reference/driver/crud/writing/">MongoDB C# Driver Writing Documentation</seealso>
     public MongoHelper InsertOne(string collection, JObject document, out string insertedId)
     {
-        ArgumentNullException.ThrowIfNull(collection);
-        ArgumentNullException.ThrowIfNull(document);
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(argument: collection);
+        ArgumentNullException.ThrowIfNull(argument: document);
+        ObjectDisposedException.ThrowIf(condition: _disposed, instance: this);
 
         try
         {
             _session ??= _client.StartSession();
-            var bsonDoc = BsonDocument.Parse(document.ToString());
-            _database.GetCollection<BsonDocument>(collection).InsertOne(_session, bsonDoc);
+            var bsonDoc = BsonDocument.Parse(json: document.ToString());
+
+            _database
+                .GetCollection<BsonDocument>(name: collection)
+                .InsertOne(
+                    session: _session,
+                    document: bsonDoc,
+                    options: new InsertOneOptions { BypassDocumentValidation = true }
+                );
+
+            insertedId = bsonDoc["_id"]?.ToString() ?? string.Empty;
+            return this;
+        }
+        catch (Exception ex)
+        {
+            _logging?.LogError(exception: ex);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Inserts a single document into the specified MongoDB collection using a pre-initialized collection reference.
+    /// </summary>
+    /// <param name="collection">The pre-initialized MongoDB collection reference.</param>
+    /// <param name="document">The document to be inserted as a JObject.</param>
+    /// <param name="insertedId">The unique identifier of the inserted document.</param>
+    /// <returns>The current <see cref="MongoHelper"/> instance for method chaining.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when attempting to use a disposed instance.</exception>
+    /// <exception cref="MongoException">Thrown when MongoDB operations fail.</exception>
+    /// <exception cref="TimeoutException">Thrown when the operation exceeds the configured timeout.</exception>
+    /// <remarks>
+    /// Performs a single document insertion operation with automatic ID generation using a pre-initialized collection.
+    ///
+    /// > [!IMPORTANT]
+    /// > The document must not contain an '_id' field as MongoDB will generate one automatically.
+    ///
+    /// > [!NOTE]
+    /// > This method is thread-safe and uses the current session if transaction is active.
+    ///
+    /// Example usage:
+    /// <code>
+    /// var collection = database.GetCollection&lt;BsonDocument&gt;("users");
+    /// var document = new JObject
+    /// {
+    ///     ["name"] = "John Doe",
+    ///     ["email"] = "john@example.com"
+    /// };
+    ///
+    /// mongoHelper
+    ///     .InsertOne(collection: collection, document: document, out string id)
+    ///     .CommitTransaction();
+    /// </code>
+    /// </remarks>
+    /// <seealso href="https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/">MongoDB insertOne Documentation</seealso>
+    public MongoHelper InsertOne(
+        IMongoCollection<BsonDocument> collection,
+        JObject document,
+        out string insertedId
+    )
+    {
+        ArgumentNullException.ThrowIfNull(argument: collection);
+        ArgumentNullException.ThrowIfNull(argument: document);
+        ObjectDisposedException.ThrowIf(condition: _disposed, instance: this);
+
+        try
+        {
+            _session ??= _client.StartSession();
+
+            var bsonDoc = BsonDocument.Parse(json: document.ToString(formatting: Formatting.None));
+
+            collection.InsertOne(
+                session: _session,
+                document: bsonDoc,
+                options: new InsertOneOptions { BypassDocumentValidation = true }
+            );
+
             insertedId = bsonDoc["_id"]?.ToString() ?? string.Empty;
             return this;
         }

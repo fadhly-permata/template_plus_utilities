@@ -1,3 +1,5 @@
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 
 namespace IDC.Utilities.Data;
@@ -18,12 +20,17 @@ namespace IDC.Utilities.Data;
 /// </code>
 /// </remarks>
 /// <seealso href="https://www.mongodb.com/docs/drivers/csharp/current/">MongoDB .NET Driver</seealso>
-public partial class MongoRepository<T>(MongoHelper mongoHelper, string collectionName)
+public partial class MongoRepository<T>(
+    MongoHelper mongoHelper,
+    string collectionName,
+    IMongoCollection<BsonDocument>? collection = null
+)
 {
     private readonly MongoHelper _mongoHelper =
         mongoHelper ?? throw new ArgumentNullException(paramName: nameof(mongoHelper));
     private readonly string _collectionName =
         collectionName ?? throw new ArgumentNullException(paramName: nameof(collectionName));
+    private readonly IMongoCollection<BsonDocument>? collection = collection;
 
     /// <summary>
     /// Inserts a single document into the collection.
