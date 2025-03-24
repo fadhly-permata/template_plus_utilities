@@ -47,6 +47,11 @@
             "group": {
                 "kind": "build",
                 "isDefault": false
+            },
+            "options": {
+                "env": {
+                    "DOTNET_USE_POLLING_FILE_WATCHER": "1"
+                }
             }
         }
     ]

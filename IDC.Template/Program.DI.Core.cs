@@ -9,7 +9,7 @@ internal partial class Program
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
     /// <returns>An instance of <see cref="AppConfigsHandler"/>.</returns>
     /// <remarks>
-    /// This method loads application configurations using <see cref="AppConfigsHandler.Load"/>,
+    /// This method loads application configurations using <see cref="AppConfigsHandler.Load()"/>,
     /// adds them as a singleton service to the dependency injection container,
     /// and returns the loaded configurations.
     /// </remarks>
@@ -31,7 +31,7 @@ internal partial class Program
     /// <param name="builder">The <see cref="WebApplicationBuilder"/> instance.</param>
     /// <returns>An instance of <see cref="AppSettingsHandler"/>.</returns>
     /// <remarks>
-    /// This method loads application settings using <see cref="AppSettingsHandler.Load"/>,
+    /// This method loads application settings using <see cref="AppSettingsHandler.Load()"/>,
     /// adds them as a singleton service to the dependency injection container,
     /// and returns the loaded settings.
     /// </remarks>
