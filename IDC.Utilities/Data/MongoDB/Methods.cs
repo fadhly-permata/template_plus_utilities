@@ -16,40 +16,33 @@ public sealed partial class MongoHelper
         return _database.GetCollection<TDocument>(collectionName);
     }
 
-    public MongoHelper Find(string collectionName, JObject filter, out List<JObject> results)
-    {
-        try
-        {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-            _session ??= _client.StartSession();
-            var docs = _database
-                .GetCollection<BsonDocument>(collectionName)
-                .Find(_session, BsonDocument.Parse(filter.ToString()))
-                .ToList();
-
-            results = docs.Select(doc => JObject.Parse(doc.ToJson())).ToList();
-            return this;
-        }
-        catch (Exception ex)
-        {
-            _logging?.LogError(exception: ex);
-            throw;
-        }
-    }
-
     public MongoHelper Find(
         IMongoCollection<BsonDocument> collection,
         JObject filter,
-        out List<JObject> results
+        out IFindFluent<BsonDocument, BsonDocument> results,
+        FindOptions? options = null
     )
     {
         try
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
             _session ??= _client.StartSession();
-            var docs = collection.Find(_session, BsonDocument.Parse(filter.ToString())).ToList();
 
-            results = docs.Select(doc => JObject.Parse(doc.ToJson())).ToList();
+            // Optimize filter parsing
+            var bsonFilter = BsonDocument.Parse(filter.ToString());
+
+            // Use batch processing and async enumeration for better performance
+            var findOptions =
+                options
+                ?? new FindOptions
+                {
+                    BatchSize = 1000, // Adjust batch size based on your needs
+                    AllowDiskUse = true // For large result sets
+                };
+
+            // Stream results instead of loading all into memory at once
+            results = collection.Find(_session, bsonFilter, findOptions);
+
             return this;
         }
         catch (Exception ex)
@@ -59,10 +52,10 @@ public sealed partial class MongoHelper
         }
     }
 
-    public async Task<(MongoHelper helper, List<JObject> results)> FindAsync(
+    public async Task<(MongoHelper helper, IAsyncCursor<BsonDocument>? results)> FindAsync(
         string collectionName,
         JObject filter,
-        Action<List<JObject>>? callback = null,
+        Action<IAsyncCursor<BsonDocument>?>? callback = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -71,12 +64,14 @@ public sealed partial class MongoHelper
             ObjectDisposedException.ThrowIf(_disposed, this);
             _session ??= await _client.StartSessionAsync(cancellationToken: cancellationToken);
 
-            var docs = await _database
+            var results = await _database
                 .GetCollection<BsonDocument>(collectionName)
-                .Find(_session, BsonDocument.Parse(filter.ToString()))
-                .ToListAsync(cancellationToken);
+                .FindAsync(
+                    session: _session,
+                    filter: BsonDocument.Parse(filter.ToString()),
+                    cancellationToken: cancellationToken
+                );
 
-            var results = docs.Select(doc => JObject.Parse(doc.ToJson())).ToList();
             callback?.Invoke(results);
             return (helper: this, results);
         }
@@ -87,10 +82,10 @@ public sealed partial class MongoHelper
         }
     }
 
-    public async Task<(MongoHelper helper, List<JObject> results)> FindAsync(
+    public async Task<(MongoHelper helper, IAsyncCursor<BsonDocument>? results)> FindAsync(
         IMongoCollection<BsonDocument> collection,
         JObject filter,
-        Action<List<JObject>>? callback = null,
+        Action<IAsyncCursor<BsonDocument>?>? callback = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -99,11 +94,12 @@ public sealed partial class MongoHelper
             ObjectDisposedException.ThrowIf(_disposed, this);
             _session ??= await _client.StartSessionAsync(cancellationToken: cancellationToken);
 
-            var docs = await collection
-                .Find(_session, BsonDocument.Parse(filter.ToString()))
-                .ToListAsync(cancellationToken);
+            var results = await collection.FindAsync(
+                session: _session,
+                filter: BsonDocument.Parse(filter.ToString()),
+                cancellationToken: cancellationToken
+            );
 
-            var results = docs.Select(doc => JObject.Parse(doc.ToJson())).ToList();
             callback?.Invoke(results);
             return (helper: this, results);
         }
