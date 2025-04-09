@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace IDC.Utilities.Data;
@@ -66,6 +67,24 @@ public sealed partial class MongoHelper
     /// > Must be initialized via <see cref="M:IDC.Utilities.Data.MongoHelper.ConnectAsync"/> before use.
     /// </remarks>
     private IMongoDatabase _database;
+
+    /// <summary>
+    /// Represents the currently active MongoDB collection instance.
+    /// </summary>
+    /// <remarks>
+    /// Provides access to:
+    /// - Document operations
+    /// - Index management
+    /// - Collection statistics
+    /// - Aggregation pipelines
+    ///
+    /// > [!WARNING]
+    /// > Must be initialized via <see cref="GetCollection{TDocument}"/> before use.
+    ///
+    /// > [!NOTE]
+    /// > This field is generic to support different document types.
+    /// </remarks>
+    private IMongoCollection<BsonDocument>? _collection;
 
     /// <summary>
     /// Manages the current MongoDB session for transaction support.

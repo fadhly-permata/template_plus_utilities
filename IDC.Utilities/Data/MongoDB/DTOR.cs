@@ -35,6 +35,7 @@ public sealed partial class MongoHelper
             if (disposing)
             {
                 Disconnect();
+                _collection = null;
             }
             _disposed = true;
         }
@@ -90,6 +91,7 @@ public sealed partial class MongoHelper
                 _session.Dispose();
                 _session = null;
             }
+            _collection = null;
             _disposed = true;
         }
 

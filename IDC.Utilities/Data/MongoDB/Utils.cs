@@ -7,26 +7,6 @@ namespace IDC.Utilities.Data;
 public sealed partial class MongoHelper
 {
     /// <summary>
-    /// Converts a JObject to a BsonDocument.
-    /// </summary>
-    /// <param name="json">The JObject to convert.</param>
-    /// <returns>A BsonDocument representation of the input JSON.</returns>
-    /// <remarks>
-    /// This method is useful when you need to convert JSON data to BSON format for MongoDB operations.
-    /// </remarks>
-    private static BsonDocument ToBsonDocument(JObject json) => BsonDocument.Parse(json.ToString());
-
-    /// <summary>
-    /// Converts a BsonDocument to a JObject.
-    /// </summary>
-    /// <param name="bson">The BsonDocument to convert.</param>
-    /// <returns>A JObject representation of the input BSON.</returns>
-    /// <remarks>
-    /// This method is helpful when you need to convert BSON data from MongoDB to JSON format for further processing or output.
-    /// </remarks>
-    private static JObject ToJObject(BsonDocument bson) => JObject.Parse(bson.ToJson());
-
-    /// <summary>
     /// Checks if a collection exists in the database.
     /// </summary>
     /// <param name="collectionName">The name of the collection to check.</param>
