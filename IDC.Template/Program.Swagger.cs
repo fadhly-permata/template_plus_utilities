@@ -34,7 +34,7 @@ internal partial class Program
                     )!,
                     Url = new Uri(
                         _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.Contact.Url")!
-                    )
+                    ),
                 },
                 License = new OpenApiLicense
                 {
@@ -42,8 +42,8 @@ internal partial class Program
                     Url = new Uri(
                         _appConfigs.Get<string>(path: "SwaggerConfig.OpenApiInfo.License.Url")!,
                         UriKind.Relative
-                    )
-                }
+                    ),
+                },
             };
 
             options.SwaggerDoc(name: "Main", info: openApiInfo);
@@ -56,7 +56,7 @@ internal partial class Program
                     Description = openApiInfo.Description,
                     TermsOfService = openApiInfo.TermsOfService,
                     Contact = openApiInfo.Contact,
-                    License = openApiInfo.License
+                    License = openApiInfo.License,
                 }
             );
 
@@ -79,7 +79,7 @@ internal partial class Program
                     Type = SecuritySchemeType.ApiKey,
                     Name = "X-API-Key",
                     In = ParameterLocation.Header,
-                    Scheme = "ApiKeyScheme"
+                    Scheme = "ApiKeyScheme",
                 }
             );
 
@@ -92,11 +92,11 @@ internal partial class Program
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "ApiKey"
-                            }
+                                Id = "ApiKey",
+                            },
                         },
                         Array.Empty<string>()
-                    }
+                    },
                 }
             );
 
@@ -104,7 +104,7 @@ internal partial class Program
                 (docName, api) =>
                 {
                     if (docName == "Demo")
-                        return api.RelativePath?.ToLower().Contains("/demo/") == true
+                        return api.RelativePath?.ToLower().Contains("api/demo/") == true
                             || api.GroupName?.Equals("Demo", StringComparison.OrdinalIgnoreCase)
                                 == true;
 

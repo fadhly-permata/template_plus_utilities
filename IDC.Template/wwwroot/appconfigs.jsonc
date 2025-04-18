@@ -116,7 +116,8 @@
         },
         // Daftar API key yang terdaftar
         "RegisteredApiKeyList": [
-            "NFHUZqt0zmL6siZ7/ynQ8nljJtsQrT3h0+nQZHhIQhk="
+            "NFHUZqt0zmL6siZ7/ynQ8nljJtsQrT3h0+nQZHhIQhk=",
+            "IDxvX6aT3XTERRpuHpMNtpcQVUo2rZ3Smtm83UPVfi8="
         ]
     },
     // Pengaturan Swagger

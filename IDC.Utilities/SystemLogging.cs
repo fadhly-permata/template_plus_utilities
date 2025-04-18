@@ -117,7 +117,7 @@ public sealed class SystemLogging : IDisposable
         _logDirectory = logDirectory;
         _enableOsLogging = enableOsLogging;
         _enableFileLogging = enableFileLogging;
-        _source = source ?? "IDC.Template";
+        _source = source ?? "IDC.Utilities";
         _autoCleanupOldLogs = autoCleanupOldLogs;
         _maxOldlogAge = maxOldlogAge;
         _baseDirectory = string.IsNullOrWhiteSpace(value: baseDirectory)
@@ -125,10 +125,20 @@ public sealed class SystemLogging : IDisposable
             : baseDirectory;
         _includeStackTrace = includeStackTrace;
 
-        if (_enableOsLogging && RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Windows))
+        if (_enableOsLogging && OperatingSystem.IsWindows())
         {
             if (!EventLog.SourceExists(source: _source))
+            {
+                // Hapus source lama jika ada
+                try
+                {
+                    EventLog.DeleteEventSource(source: _source);
+                }
+                catch { }
+
+                // Buat source baru
                 EventLog.CreateEventSource(source: _source, logName: DefaultLogName);
+            }
             _windowsEventLog = new(logName: DefaultLogName, machineName: ".", source: _source);
         }
 
@@ -202,6 +212,8 @@ public sealed class SystemLogging : IDisposable
         if (_disposed)
             return;
 
+        Console.WriteLine($"{level}: {message}");
+
         if (_enableOsLogging)
             LogToOperatingSystem(message: message, level: level);
 
@@ -214,33 +226,39 @@ public sealed class SystemLogging : IDisposable
     /// <param name="level">Log level</param>
     private void LogToOperatingSystem(string message, LogLevel level)
     {
-        if (RuntimeInformation.IsOSPlatform(osPlatform: OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
             LogToWindowsEvent(message: message, level: level);
         else
             LogToSyslog(message: message, level: level);
     }
 
-#pragma warning disable CA1822 // Mark members as static
     /// <summary>Logs to Windows Event Log</summary>
     /// <param name="message">Message to log</param>
     /// <param name="level">Log level</param>
     private void LogToWindowsEvent(string message, LogLevel level)
     {
-#if WINDOWS
-        if (_windowsEventLog is null)
-            return;
-
-        var eventLogEntryType = level switch
+        try
         {
-            LogLevel.Error => EventLogEntryType.Error,
-            LogLevel.Warning => EventLogEntryType.Warning,
-            _ => EventLogEntryType.Information
-        };
+            if (!OperatingSystem.IsWindows())
+                return;
 
-        _windowsEventLog.WriteEntry(message: message, type: eventLogEntryType);
-#endif
+            if (_windowsEventLog is null)
+                return;
+
+            var eventLogEntryType = level switch
+            {
+                LogLevel.Error => EventLogEntryType.Error,
+                LogLevel.Warning => EventLogEntryType.Warning,
+                _ => EventLogEntryType.Information,
+            };
+
+            _windowsEventLog.WriteEntry(message: message, type: eventLogEntryType);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to write to Windows Event Log: {ex.Message}");
+        }
     }
-#pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
     /// Logs to Syslog daemon on Unix-like systems

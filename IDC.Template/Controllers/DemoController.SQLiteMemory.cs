@@ -1,12 +1,43 @@
 using IDC.Template.Utilities;
+using IDC.Template.Utilities.DI;
 using IDC.Template.Utilities.Models.SQLite;
+using IDC.Utilities;
+using IDC.Utilities.Data;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
 namespace IDC.Template.Controllers;
 
-public partial class DemoController
+/// <summary>
+/// Controller for managing SQLite in-memory database operations
+/// </summary>
+/// <remarks>
+/// Provides endpoints for creating, altering, and managing SQLite tables in memory.
+/// Supports operations like creating tables, adding/removing columns, and querying table information.
+/// </remarks>
+/// <example>
+/// Basic usage:
+/// <code>
+/// var controller = new DemoControllerSQLiteMemory(
+///     appConfigs: new AppConfigsHandler(),
+///     language: new Language(),
+///     systemLogging: new SystemLogging(),
+///     sqliteHelper: new SQLiteHelper("Data Source=:memory:")
+/// );
+/// </code>
+/// </example>
+/// <param name="language">Service for handling language and localization</param>
+/// <param name="systemLogging">Service for system-wide logging operations</param>
+/// <param name="sqliteHelper">Optional SQLite helper for database operations</param>
+[Route("api/demo/[controller]")]
+[ApiController]
+[ApiExplorerSettings(GroupName = "Demo")]
+public class DemoControllerSQLiteMemory(
+    Language language,
+    SystemLogging systemLogging,
+    SQLiteHelper? sqliteHelper = null
+) : ControllerBase
 {
     /// <summary>
     /// Creates a new SQLite table with specified columns
@@ -28,7 +59,7 @@ public partial class DemoController
     /// <param name="request">Request object containing table name and column definitions</param>
     /// <returns>APIResponseData containing affected rows count</returns>W
     /// <exception cref="Exception">Thrown when table creation fails</exception>
-    [Tags(tags: "SQLite In Memory"), HttpPost(template: "SQLite/Tables")]
+    [Tags(tags: "SQLite In Memory"), HttpPost(template: "Tables")]
     public APIResponseData<object> CreateTable([FromBody] CreateTableRequest request)
     {
         try
@@ -77,7 +108,7 @@ public partial class DemoController
     /// <param name="request">Request object containing columns to add and remove</param>
     /// <returns>APIResponseData containing affected rows count</returns>
     /// <exception cref="Exception">Thrown when table alteration fails</exception>
-    [Tags(tags: "SQLite In Memory"), HttpPut(template: "SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpPut(template: "Tables/{tableName}")]
     public APIResponseData<object> AlterTable(
         [FromRoute] string tableName,
         [FromBody] AlterTableRequest request
@@ -146,7 +177,7 @@ public partial class DemoController
     /// <param name="tableName">Name of the table to drop</param>
     /// <returns>APIResponseData containing affected rows count</returns>
     /// <exception cref="Exception">Thrown when table drop operation fails</exception>
-    [Tags(tags: "SQLite In Memory"), HttpDelete(template: "SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpDelete(template: "Tables/{tableName}")]
     public APIResponseData<object> DropTable([FromRoute] string tableName)
     {
         try
@@ -201,7 +232,7 @@ public partial class DemoController
     /// </remarks>
     /// <returns>APIResponseData containing list of tables with their column definitions</returns>
     /// <exception cref="Exception">Thrown when table information cannot be retrieved</exception>
-    [Tags(tags: "SQLite In Memory"), HttpGet(template: "SQLite/Tables")]
+    [Tags(tags: "SQLite In Memory"), HttpGet(template: "Tables")]
     public APIResponseData<object> GetAllTables()
     {
         try
@@ -234,8 +265,8 @@ public partial class DemoController
                                     type = col["type"],
                                     notNull = col["notnull"],
                                     defaultValue = col["dflt_value"],
-                                    isPrimaryKey = col["pk"]
-                                })
+                                    isPrimaryKey = col["pk"],
+                                }),
                             };
                         })
                         .ToList()
@@ -262,7 +293,7 @@ public partial class DemoController
     /// <param name="tableName">Name of the table to get information for</param>
     /// <returns>Table metadata including column definitions</returns>
     /// <exception cref="Exception">Thrown when table information cannot be retrieved</exception>
-    [Tags(tags: "SQLite In Memory"), HttpGet(template: "SQLite/Tables/{tableName}")]
+    [Tags(tags: "SQLite In Memory"), HttpGet(template: "Tables/{tableName}")]
     public APIResponseData<object> GetTableInfo([FromRoute] string tableName)
     {
         try
@@ -286,8 +317,8 @@ public partial class DemoController
                             type = col["type"],
                             notNull = col["notnull"],
                             defaultValue = col["dflt_value"],
-                            isPrimaryKey = col["pk"]
-                        })
+                            isPrimaryKey = col["pk"],
+                        }),
                     }
                 );
         }

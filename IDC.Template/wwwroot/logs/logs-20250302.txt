@@ -1,5 +1,0 @@
-test 2[2025-03-02 22:43:57] [Information] test aja
-[2025-03-02 22:44:31] [Information] test aja asdad
-[2025-03-02 22:45:16] [Error] Type: System.Exception
-Message: wewewewe
-

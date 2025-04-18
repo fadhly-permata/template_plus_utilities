@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: IDC.Template [Default Configuration]",
+            "name": "C#: IDC.Template [HTTP]",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "Build The Solution",
+            "preLaunchTask": "[ WINDOWS ] Build The Solution",
             "program": "${workspaceFolder}/IDC.Template/bin/Debug/net8.0/IDC.Template.dll",
             "args": [],
             "cwd": "${workspaceFolder}/IDC.Template",
@@ -16,10 +16,11 @@
             "serverReadyAction": {
                 "action": "openExternally",
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
-                "uriFormat": "%s"
+                "uriFormat": "%s/swagger"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7002"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

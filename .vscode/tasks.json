@@ -2,41 +2,73 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Security Scan",
+            "label": "[ UBUNTU ] Security Scan",
             "type": "shell",
             "command": "trivy fs .",
             "group": {
-                "kind": "test",
-                "isDefault": true
+                "kind": "test"
             }
         },
         {
-            "label": "Clean The Solution",
+            "label": "[ UBUNTU ] Clean The Solution",
             "type": "shell",
             "command": "dotnet clean && rm -rf IDC.Template/bin/* && rm -rf IDC.Utilities/bin/*",
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             },
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Build The Solution",
+            "label": "[ UBUNTU ] Build The Solution",
             "type": "shell",
             "command": "chmod +x ./.vscode/build.sh && ./.vscode/build.sh",
             "group": {
+                "kind": "build"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "[ UBUNTU ] Rebuild The Solution",
+            "type": "shell",
+            "command": "chmod +x ./.vscode/rebuild.sh && ./.vscode/rebuild.sh",
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "[ WINDOWS ] Security Scan",
+            "type": "shell",
+            "command": "trivy fs .",
+            "group": {
+                "kind": "test"
+            }
+        },
+        {
+            "label": "[ WINDOWS ] Clean The Solution",
+            "type": "shell",
+            "command": "./.vscode/clean.bat",
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "[ WINDOWS ] Build The Solution",
+            "type": "shell",
+            "command": "./.vscode/build.bat",
+            "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Rebuild The Solution",
+            "label": "[ WINDOWS ] Rebuild The Solution",
             "type": "shell",
-            "command": "chmod +x ./.vscode/rebuild.sh && ./.vscode/rebuild.sh",
+            "command": "./.vscode/rebuild.bat",
             "group": {
-                "kind": "build",
-                "isDefault": true
+                "kind": "build"
             },
             "problemMatcher": "$msCompile"
         }

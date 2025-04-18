@@ -6,7 +6,31 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IDC.Template.Controllers;
 
-public partial class DemoController
+/// <summary>
+/// Controller for managing API key operations and generation
+/// </summary>
+/// <remarks>
+/// Provides endpoints for generating different types of API keys including:
+/// - User-specific API keys
+/// - Temporary API keys
+/// - Client-specific API keys
+/// - Environment-specific API keys
+/// </remarks>
+/// <param name="language">Service for handling localization and messages</param>
+/// <param name="systemLogging">Service for system logging operations</param>
+/// <example>
+/// <code>
+/// var controller = new DemoControllerApiKeys(
+///     language: new Language(),
+///     systemLogging: new SystemLogging()
+/// );
+/// var response = controller.GenerateUserApiKey(new UserApiKeyRequest());
+/// </code>
+/// </example>
+[Route("api/demo/[controller]")]
+[ApiController]
+[ApiExplorerSettings(GroupName = "Demo")]
+public class DemoControllerApiKeys(Language language, SystemLogging systemLogging) : ControllerBase
 {
     private static string GetSalt() => System.IO.File.ReadAllText("wwwroot/security/enc_salt.txt");
 
@@ -15,7 +39,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="request">User API key request containing userId, appId, and expiryDate</param>
     /// <returns>Generated API key</returns>
-    [Tags(tags: "API Keys"), HttpPost(template: "ApiKey/user")]
+    [Tags(tags: "API Keys"), HttpPost(template: "user")]
     public APIResponseData<string> GenerateUserApiKey([FromBody] UserApiKeyRequest request)
     {
         try
@@ -46,7 +70,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="request">Temporary API key request containing validity period and purpose</param>
     /// <returns>Generated temporary API key</returns>
-    [Tags(tags: "API Keys"), HttpPost(template: "ApiKey/temporary")]
+    [Tags(tags: "API Keys"), HttpPost(template: "temporary")]
     public APIResponseData<string> GenerateTemporaryApiKey(
         [FromBody] TemporaryApiKeyRequest request
     )
@@ -78,7 +102,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="request">Client API key request containing clientId, secret, and permissions</param>
     /// <returns>Generated client API key</returns>
-    [Tags(tags: "API Keys"), HttpPost(template: "ApiKey/client")]
+    [Tags(tags: "API Keys"), HttpPost(template: "client")]
     public APIResponseData<string> GenerateClientApiKey([FromBody] ClientApiKeyRequest request)
     {
         try
@@ -109,7 +133,7 @@ public partial class DemoController
     /// </summary>
     /// <param name="request">Environment API key request containing environment, service name, and version</param>
     /// <returns>Generated environment API key</returns>
-    [Tags(tags: "API Keys"), HttpPost(template: "ApiKey/environment")]
+    [Tags(tags: "API Keys"), HttpPost(template: "environment")]
     public APIResponseData<string> GenerateEnvironmentApiKey(
         [FromBody] EnvironmentApiKeyRequest request
     )

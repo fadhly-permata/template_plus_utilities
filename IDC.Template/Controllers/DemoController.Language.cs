@@ -1,16 +1,35 @@
 using IDC.Template.Utilities;
+using IDC.Utilities;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IDC.Template.Controllers;
 
-public partial class DemoController
+/// <summary>
+/// Controller for managing language-related operations
+/// </summary>
+/// <remarks>
+/// Provides endpoints for retrieving and managing language messages and configurations.
+/// Supports operations like getting available languages, retrieving localized messages,
+/// updating messages, and reloading language configurations.
+/// </remarks>
+/// <example>
+/// <code>
+/// var controller = new DemoControllerLanguage(language: languageService, systemLogging: loggingService);
+/// var response = controller.Get(); // Gets all available languages
+/// </code>
+/// </example>
+[Route("api/demo/[controller]")]
+[ApiController]
+[ApiExplorerSettings(GroupName = "Demo")]
+public partial class DemoControllerLanguage(Language language, SystemLogging systemLogging)
+    : ControllerBase
 {
     /// <summary>
     /// Gets all available languages
     /// </summary>
     /// <returns>Array of language codes</returns>
-    [Tags(tags: "Languages"), HttpGet(template: "Languages")]
+    [Tags(tags: "Languages"), HttpGet()]
     public APIResponseData<string[]> Get()
     {
         try
@@ -35,10 +54,10 @@ public partial class DemoController
     /// <param name="path">Message path in dot notation</param>
     /// <param name="lang">Optional language code</param>
     /// <returns>Localized message</returns>
-    [Tags(tags: "Languages"), HttpGet(template: "Languages/{path}")]
+    [Tags(tags: "Languages"), HttpGet(template: "{lang}/{path}")]
     public APIResponseData<string> GetMessage(
         [FromRoute] string path,
-        [FromQuery] string? lang = null
+        [FromRoute] string? lang = null
     )
     {
         try
@@ -65,7 +84,7 @@ public partial class DemoController
     /// <param name="lang">Language code</param>
     /// <param name="path">Message path</param>
     /// <param name="value">New message value</param>
-    [Tags(tags: "Languages"), HttpPut(template: "Languages/{lang}/{path}")]
+    [Tags(tags: "Languages"), HttpPut(template: "{lang}/{path}")]
     public APIResponseData<bool> UpdateMessage(
         [FromRoute] string lang,
         [FromRoute] string path,
@@ -93,7 +112,7 @@ public partial class DemoController
     /// <summary>
     /// Reloads messages from file
     /// </summary>
-    [Tags(tags: "Languages"), HttpPost(template: "Languages/reload")]
+    [Tags(tags: "Languages"), HttpPost(template: "reload")]
     public APIResponseData<bool> Reload()
     {
         try

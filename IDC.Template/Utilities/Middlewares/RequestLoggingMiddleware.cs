@@ -49,7 +49,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, SystemLogging system
             var elapsed = DateTime.UtcNow - start;
 
             systemLogging.LogInformation(
-                $"{requestMethod} {requestPath} completed in {elapsed.TotalMilliseconds}ms with status {context.Response.StatusCode}"
+                $"{requestMethod} {requestPath} completed in {elapsed.TotalMilliseconds:F3}ms with status {context.Response.StatusCode}"
             );
         }
         catch (Exception ex)

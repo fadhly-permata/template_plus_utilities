@@ -1,18 +1,47 @@
 using System.Data;
 using IDC.Template.Utilities;
+using IDC.Template.Utilities.DI;
 using IDC.Template.Utilities.Helpers;
+using IDC.Utilities;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IDC.Template.Controllers;
 
-public partial class DemoController
+/// <summary>
+/// Controller for managing system logging operations
+/// </summary>
+/// <remarks>
+/// Provides endpoints for writing logs at different levels (Info, Warning, Error) and retrieving log information.
+/// Supports operations like viewing log files and reading log entries within a specified time range.
+/// </remarks>
+/// <example>
+/// Basic usage:
+/// <code>
+/// var controller = new DemoControllerSystemLogging(
+///     appConfigs: new AppConfigsHandler(),
+///     language: new Language(),
+///     systemLogging: new SystemLogging()
+/// );
+/// </code>
+/// </example>
+/// <param name="appConfigs">Configuration handler for accessing application settings</param>
+/// <param name="language">Service for handling language and localization</param>
+/// <param name="systemLogging">Service for system-wide logging operations</param>
+[Route("api/demo/[controller]")]
+[ApiController]
+[ApiExplorerSettings(GroupName = "Demo")]
+public class DemoControllerSystemLogging(
+    AppConfigsHandler appConfigs,
+    Language language,
+    SystemLogging systemLogging
+) : ControllerBase
 {
     /// <summary>
     /// Write logs an information message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [Tags(tags: "System Logging"), HttpPost(template: "Log/Info")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Info")]
     public APIResponse LogInfo([FromBody] string message)
     {
         try
@@ -35,7 +64,7 @@ public partial class DemoController
     /// Write logs a warning message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [Tags(tags: "System Logging"), HttpPost(template: "Log/Warning")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Warning")]
     public APIResponse LogWarning([FromBody] string message)
     {
         try
@@ -58,7 +87,7 @@ public partial class DemoController
     /// Write logs an error message
     /// </summary>
     /// <param name="message">Message to log</param>
-    [Tags(tags: "System Logging"), HttpPost(template: "Log/Error")]
+    [Tags(tags: "System Logging"), HttpPost(template: "Error")]
     public APIResponse LogError([FromBody] string message)
     {
         try
@@ -81,7 +110,7 @@ public partial class DemoController
     /// Write logs an error with exception details
     /// </summary>
     /// <param name="message">Message to log</param>
-    [Tags(tags: "System Logging"), HttpPost(template: "Log/ErrorWithException")]
+    [Tags(tags: "System Logging"), HttpPost(template: "ErrorWithException")]
     public APIResponse LogErrorWithException([FromBody] string message)
     {
         try
@@ -104,7 +133,7 @@ public partial class DemoController
     /// Gets list of log files from configured directory
     /// </summary>
     /// <returns>List of log files with their details</returns>
-    [Tags(tags: "System Logging"), HttpGet(template: "Log/Files")]
+    [Tags(tags: "System Logging"), HttpGet(template: "Files")]
     public APIResponseData<List<object>> GetLogFiles()
     {
         try
@@ -160,7 +189,7 @@ public partial class DemoController
     /// <param name="startTime">Start time in ISO 8601 format</param>
     /// <param name="endTime">End time in ISO 8601 format</param>
     /// <returns>List of log entries within the specified time range</returns>
-    [Tags(tags: "System Logging"), HttpGet(template: "Log/Read")]
+    [Tags(tags: "System Logging"), HttpGet(template: "Read")]
     public APIResponseData<List<object>> ReadLogs(
         [FromQuery] DateTime startTime,
         [FromQuery] DateTime endTime

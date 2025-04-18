@@ -2,6 +2,66 @@
 
 Semua perubahan penting pada proyek ini akan didokumentasikan dalam file ini.
 
+## [1.0.6] - 2024-03-17
+
+### Ditambahkan
+- Penambahan file build script untuk berbagai platform:
+  * Build script untuk PowerShell (.vscode/build.ps1)
+  * Build script untuk Bash (.vscode/build.sh)
+  * Build script untuk Windows Batch (.vscode/build.bat)
+- Penambahan file rebuild script untuk berbagai platform:
+  * Rebuild script untuk PowerShell (.vscode/rebuild.ps1)
+  * Rebuild script untuk Bash (.vscode/rebuild.sh)
+  * Rebuild script untuk Windows Batch (.vscode/rebuild.bat)
+- Penambahan konfigurasi VS Code tasks (.vscode/tasks.json):
+  * Task untuk security scanning (Ubuntu & Windows)
+  * Task untuk cleaning solution (Ubuntu & Windows)
+  * Task untuk building solution (Ubuntu & Windows)
+  * Task untuk rebuilding solution (Ubuntu & Windows)
+- Penambahan tema Swagger UI:
+  * Tema Monokai dengan dukungan mode gelap/terang otomatis
+  * Tema Material
+  * Tema Feeling Blue
+  * Tema Flattop
+  * Tema Muted
+  * Tema Newspaper
+  * Tema Outline
+- Penambahan konfigurasi keamanan:
+  * File .trivyignore untuk pengecualian scan keamanan
+  * File .trivyrc untuk konfigurasi scanner Trivy
+
+### Diubah
+- Peningkatan konfigurasi Swagger UI:
+  * Penambahan dukungan tema dinamis
+  * Peningkatan styling untuk mode gelap
+  * Optimasi animasi dan transisi
+  * Penyesuaian tata letak dan responsivitas
+- Pembaruan konfigurasi build:
+  * Optimasi proses build untuk berbagai platform
+  * Penanganan dependencies yang lebih baik
+  * Pembersihan file-file temporary
+
+### File yang Diubah
+- .vscode/build.ps1 (Baru)
+- .vscode/build.sh (Baru)
+- .vscode/build.bat (Baru)
+- .vscode/rebuild.ps1 (Baru)
+- .vscode/rebuild.sh (Baru)
+- .vscode/rebuild.bat (Baru)
+- .vscode/tasks.json (Diperbarui)
+- .trivyignore (Baru)
+- .trivyrc (Baru)
+- IDC.Template/wwwroot/themes/theme-monokai-dark.css (Baru)
+- IDC.Template/wwwroot/themes/theme-material.css (Baru)
+- IDC.Template/wwwroot/themes/theme-feeling-blue.css (Baru)
+- IDC.Template/wwwroot/themes/theme-flattop.css (Baru)
+- IDC.Template/wwwroot/themes/theme-muted.css (Baru)
+- IDC.Template/wwwroot/themes/theme-newspaper.css (Baru)
+- IDC.Template/wwwroot/themes/theme-outline.css (Baru)
+- IDC.Template/wwwroot/css/swagger-custom.css (Diperbarui)
+- IDC.Template/wwwroot/js/swagger-theme-switcher.js (Diperbarui)
+- IDC.Template/Program.Swagger.cs (Diperbarui)
+
 ## [1.0.3] - 2024-03-17
 
 ### Ditambahkan

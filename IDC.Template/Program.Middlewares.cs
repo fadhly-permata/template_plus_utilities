@@ -58,8 +58,8 @@ internal partial class Program
             );
         }
 
-        ConfigureSwaggerUI(app: app);
         app.UseHttpsRedirection();
+        ConfigureSwaggerUI(app: app);
         ConfigureStaticFiles(app: app);
         app.UseAuthorization();
         app.MapControllers();
@@ -73,7 +73,7 @@ internal partial class Program
                 FileProvider = new PhysicalFileProvider(
                     root: Path.Combine(path1: Directory.GetCurrentDirectory(), path2: "wwwroot")
                 ),
-                RequestPath = ""
+                RequestPath = "",
             }
         );
     }

@@ -62,11 +62,10 @@ public class ExceptionHandlerFilter(Language language, SystemLogging systemLoggi
             NotImplementedException => new StatusCodeResult(StatusCodes.Status501NotImplemented),
             TimeoutException => new StatusCodeResult(StatusCodes.Status408RequestTimeout),
             OperationCanceledException => new StatusCodeResult(StatusCodes.Status409Conflict),
-            _
-                => new ObjectResult(response)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                }
+            _ => new ObjectResult(response)
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            },
         };
     }
 }

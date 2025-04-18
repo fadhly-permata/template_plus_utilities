@@ -1,6 +1,7 @@
 using IDC.Template.Utilities.Middlewares;
 using IDC.Utilities.Models.API;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
